@@ -6,7 +6,6 @@ import com.fiap.globalsolution.service.MatriculaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,18 +83,10 @@ public class MatriculaController {
      */
     @Operation(summary = "Cria nova matrícula", description = "Matricula um usuário em uma trilha de aprendizagem")
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody MatriculaRequest request) {
-        try {
-            MatriculaResponse created = service.create(request);
-            URI location = URI.create("/api/matriculas/" + created.id());
-            return ResponseEntity.created(location).body(created);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
-        }
+    public ResponseEntity<MatriculaResponse> create(@Valid @RequestBody MatriculaRequest request) {
+        MatriculaResponse created = service.create(request);
+        URI location = URI.create("/api/matriculas/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 
     /**
@@ -103,18 +94,10 @@ public class MatriculaController {
      */
     @Operation(summary = "Atualiza matrícula", description = "Atualiza os dados de uma matrícula existente")
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody MatriculaRequest request) {
-        try {
-            return service.update(id, request)
-                    .map(updated -> ResponseEntity.ok((Object) updated))
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
-        }
+    public ResponseEntity<MatriculaResponse> update(@PathVariable Long id, @Valid @RequestBody MatriculaRequest request) {
+        return service.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -138,9 +121,4 @@ public class MatriculaController {
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
-
-    /**
-     * Classe interna para respostas de erro
-     */
-    private record ErrorResponse(int status, String message) {}
 }

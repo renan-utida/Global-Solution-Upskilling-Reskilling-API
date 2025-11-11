@@ -6,7 +6,6 @@ import com.fiap.globalsolution.service.TrilhaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,15 +83,10 @@ public class TrilhaController {
      */
     @Operation(summary = "Cria nova trilha", description = "Cadastra uma nova trilha de aprendizagem")
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody TrilhaRequest request) {
-        try {
-            TrilhaResponse created = service.create(request);
-            URI location = URI.create("/api/trilhas/" + created.id());
-            return ResponseEntity.created(location).body(created);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
-        }
+    public ResponseEntity<TrilhaResponse> create(@Valid @RequestBody TrilhaRequest request) {
+        TrilhaResponse created = service.create(request);
+        URI location = URI.create("/api/trilhas/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 
     /**
@@ -100,15 +94,10 @@ public class TrilhaController {
      */
     @Operation(summary = "Atualiza trilha", description = "Atualiza os dados de uma trilha existente")
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody TrilhaRequest request) {
-        try {
-            return service.update(id, request)
-                    .map(updated -> ResponseEntity.ok((Object) updated))
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
-        }
+    public ResponseEntity<TrilhaResponse> update(@PathVariable Long id, @Valid @RequestBody TrilhaRequest request) {
+        return service.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -143,9 +132,4 @@ public class TrilhaController {
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
-
-    /**
-     * Classe interna para respostas de erro
-     */
-    private record ErrorResponse(int status, String message) {}
 }

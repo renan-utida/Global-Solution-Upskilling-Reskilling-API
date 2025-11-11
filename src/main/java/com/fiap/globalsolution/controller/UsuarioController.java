@@ -6,7 +6,6 @@ import com.fiap.globalsolution.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,15 +74,10 @@ public class UsuarioController {
      */
     @Operation(summary = "Cria novo usuário", description = "Cadastra um novo usuário na plataforma")
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody UsuarioRequest request) {
-        try {
-            UsuarioResponse created = service.create(request);
-            URI location = URI.create("/api/usuarios/" + created.id());
-            return ResponseEntity.created(location).body(created);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage()));
-        }
+    public ResponseEntity<UsuarioResponse> create(@Valid @RequestBody UsuarioRequest request) {
+        UsuarioResponse created = service.create(request);
+        URI location = URI.create("/api/usuarios/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 
     /**
@@ -91,15 +85,10 @@ public class UsuarioController {
      */
     @Operation(summary = "Atualiza usuário", description = "Atualiza os dados de um usuário existente")
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UsuarioRequest request) {
-        try {
-            return service.update(id, request)
-                    .map(updated -> ResponseEntity.ok((Object) updated))
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage()));
-        }
+    public ResponseEntity<UsuarioResponse> update(@PathVariable Long id, @Valid @RequestBody UsuarioRequest request) {
+        return service.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -112,9 +101,4 @@ public class UsuarioController {
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
-
-    /**
-     * Classe interna para respostas de erro
-     */
-    private record ErrorResponse(int status, String message) {}
 }
