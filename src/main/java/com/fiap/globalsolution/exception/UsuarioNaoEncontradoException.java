@@ -4,12 +4,7 @@ package com.fiap.globalsolution.exception;
  * Exceção lançada quando um usuário não é encontrado
  */
 public class UsuarioNaoEncontradoException extends RuntimeException {
-
     public UsuarioNaoEncontradoException(String message) {
         super(message);
-    }
-
-    public UsuarioNaoEncontradoException(Long id) {
-        super("Usuário não encontrado com ID: " + id);
     }
 }

@@ -1,9 +1,8 @@
 package com.fiap.globalsolution.service;
 
-import com.fiap.globalsolution.dto.UsuarioMapper;
-import com.fiap.globalsolution.dto.UsuarioRequest;
-import com.fiap.globalsolution.dto.UsuarioResponse;
+import com.fiap.globalsolution.dto.*;
 import com.fiap.globalsolution.exception.DuplicateEntityException;
+import com.fiap.globalsolution.exception.UsuarioNaoEncontradoException;
 import com.fiap.globalsolution.model.Usuario;
 import com.fiap.globalsolution.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -40,6 +39,22 @@ public class UsuarioService {
      */
     public Optional<UsuarioResponse> findById(Long id) {
         return repository.findById(id)
+                .map(UsuarioMapper::toResponse);
+    }
+
+    /**
+     * Busca um usuário por email
+     */
+    public Optional<UsuarioResponse> findByEmail(String email) {
+        return repository.findByEmail(email)
+                .map(UsuarioMapper::toResponse);
+    }
+
+    /**
+     * Busca usuários por área de atuação
+     */
+    public Optional<UsuarioResponse> findByAreaAtuacao(String areaAtuacao) {
+        return repository.findByAreaAtuacao(areaAtuacao)
                 .map(UsuarioMapper::toResponse);
     }
 

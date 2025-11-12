@@ -1,8 +1,6 @@
 package com.fiap.globalsolution.service;
 
-import com.fiap.globalsolution.dto.TrilhaMapper;
-import com.fiap.globalsolution.dto.TrilhaRequest;
-import com.fiap.globalsolution.dto.TrilhaResponse;
+import com.fiap.globalsolution.dto.*;
 import com.fiap.globalsolution.exception.DuplicateEntityException;
 import com.fiap.globalsolution.model.Trilha;
 import com.fiap.globalsolution.repository.TrilhaRepository;
@@ -41,6 +39,24 @@ public class TrilhaService {
     public Optional<TrilhaResponse> findById(Long id) {
         return repository.findById(id)
                 .map(TrilhaMapper::toResponse);
+    }
+
+    /**
+     * Busca trilhas por nível (INICIANTE, INTERMEDIARIO, AVANCADO)
+     */
+    public List<TrilhaResponse> findByNivel(String nivel) {
+        return repository.findByNivel(nivel).stream()
+                .map(TrilhaMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca trilhas por foco principal
+     */
+    public List<TrilhaResponse> findByFocoPrincipal(String focoPrincipal) {
+        return repository.findByFocoPrincipal(focoPrincipal).stream()
+                .map(TrilhaMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     /**

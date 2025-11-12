@@ -1,17 +1,9 @@
 package com.fiap.globalsolution.service;
 
-import com.fiap.globalsolution.dto.MatriculaMapper;
-import com.fiap.globalsolution.dto.MatriculaRequest;
-import com.fiap.globalsolution.dto.MatriculaResponse;
-import com.fiap.globalsolution.exception.DuplicateEntityException;
-import com.fiap.globalsolution.exception.TrilhaNaoEncontradaException;
-import com.fiap.globalsolution.exception.UsuarioNaoEncontradoException;
-import com.fiap.globalsolution.model.Matricula;
-import com.fiap.globalsolution.model.Trilha;
-import com.fiap.globalsolution.model.Usuario;
-import com.fiap.globalsolution.repository.MatriculaRepository;
-import com.fiap.globalsolution.repository.TrilhaRepository;
-import com.fiap.globalsolution.repository.UsuarioRepository;
+import com.fiap.globalsolution.dto.*;
+import com.fiap.globalsolution.exception.*;
+import com.fiap.globalsolution.model.*;
+import com.fiap.globalsolution.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +45,43 @@ public class MatriculaService {
     public Optional<MatriculaResponse> findById(Long id) {
         return repository.findById(id)
                 .map(MatriculaMapper::toResponse);
+    }
+
+    /**
+     * Busca todas as matrículas de um usuário
+     */
+    public List<MatriculaResponse> findByUsuarioId(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(
+                        "Usuário com ID " + usuarioId + " não encontrado"
+                ));
+
+        return repository.findByUsuario(usuario).stream()
+                .map(MatriculaMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca todas as matrículas de uma trilha
+     */
+    public List<MatriculaResponse> findByTrilhaId(Long trilhaId) {
+        Trilha trilha = trilhaRepository.findById(trilhaId)
+                .orElseThrow(() -> new TrilhaNaoEncontradaException(
+                        "Trilha com ID " + trilhaId + " não encontrada"
+                ));
+
+        return repository.findByTrilha(trilha).stream()
+                .map(MatriculaMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca matrículas por status
+     */
+    public List<MatriculaResponse> findByStatus(String status) {
+        return repository.findByStatus(status).stream()
+                .map(MatriculaMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     /**
