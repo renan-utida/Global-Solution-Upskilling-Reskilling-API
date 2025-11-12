@@ -2,6 +2,7 @@ package com.fiap.globalsolution.controller;
 
 import com.fiap.globalsolution.dto.UsuarioRequest;
 import com.fiap.globalsolution.dto.UsuarioResponse;
+import com.fiap.globalsolution.exception.DuplicateEntityException;
 import com.fiap.globalsolution.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * Controller para interface web de Usuarios (Thymeleaf)
+ * Controller Web (Thymeleaf) para gerenciamento de Usuários
  */
 @Controller
 @RequestMapping("/web/usuarios")
@@ -37,7 +38,7 @@ public class UsuarioViewController {
     }
 
     /**
-     * GET /web/usuarios/{id} - Visualiza usuário
+     * GET /web/usuarios/{id} - Visualiza detalhes de um usuário
      */
     @GetMapping("/{id}")
     public String view(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
@@ -54,7 +55,7 @@ public class UsuarioViewController {
     }
 
     /**
-     * GET /web/usuarios/new - Exibe formulário de criação
+     * GET /web/usuarios/new - Exibe formulário de novo usuário
      */
     @GetMapping("/new")
     public String newForm(Model model) {
@@ -82,7 +83,7 @@ public class UsuarioViewController {
             UsuarioResponse created = service.create(request);
             redirectAttributes.addFlashAttribute("success", "Usuário criado com sucesso!");
             return "redirect:/web/usuarios/" + created.id();
-        } catch (IllegalArgumentException e) {
+        } catch (DuplicateEntityException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/web/usuarios";
         }
@@ -115,7 +116,7 @@ public class UsuarioViewController {
     }
 
     /**
-     * POST /web/usuarios/{id} - Atualiza usuário
+     * POST /web/usuarios/{id} - Atualiza usuário existente
      */
     @PostMapping("/{id}")
     public String update(@PathVariable Long id,
@@ -140,14 +141,14 @@ public class UsuarioViewController {
                         redirectAttributes.addFlashAttribute("error", "Usuário não encontrado!");
                         return "redirect:/web/usuarios";
                     });
-        } catch (IllegalArgumentException e) {
+        } catch (DuplicateEntityException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/web/usuarios";
         }
     }
 
     /**
-     * POST /web/usuarios/{id}/delete - Deleta usuário
+     * POST /web/usuarios/{id}/delete - Deleta um usuário
      */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {

@@ -2,6 +2,7 @@ package com.fiap.globalsolution.controller;
 
 import com.fiap.globalsolution.dto.TrilhaRequest;
 import com.fiap.globalsolution.dto.TrilhaResponse;
+import com.fiap.globalsolution.exception.DuplicateEntityException;
 import com.fiap.globalsolution.service.TrilhaService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -13,18 +14,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * Controller para interface web de Trilhas (Thymeleaf)
+ * Controller Web (Thymeleaf) para gerenciamento de Trilhas
  */
 @Controller
 @RequestMapping("/web/trilhas")
 public class TrilhaViewController {
 
-    private final TrilhaService trilhaService;
-    private final CompetenciaService competenciaService;
+    private final TrilhaService service;
 
-    public TrilhaViewController(TrilhaService trilhaService, CompetenciaService competenciaService) {
-        this.trilhaService = trilhaService;
-        this.competenciaService = competenciaService;
+    public TrilhaViewController(TrilhaService service) {
+        this.service = service;
     }
 
     /**
@@ -32,18 +31,18 @@ public class TrilhaViewController {
      */
     @GetMapping
     public String list(Model model) {
-        List<TrilhaResponse> trilhas = trilhaService.findAll();
+        List<TrilhaResponse> trilhas = service.findAll();
         model.addAttribute("trilhas", trilhas);
         model.addAttribute("pageTitle", "Lista de Trilhas");
         return "trilhas/list";
     }
 
     /**
-     * GET /web/trilhas/{id} - Visualiza trilha
+     * GET /web/trilhas/{id} - Visualiza detalhes de uma trilha
      */
     @GetMapping("/{id}")
     public String view(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        return trilhaService.findById(id)
+        return service.findById(id)
                 .map(trilha -> {
                     model.addAttribute("trilha", trilha);
                     model.addAttribute("pageTitle", "Detalhes da Trilha");
@@ -56,12 +55,11 @@ public class TrilhaViewController {
     }
 
     /**
-     * GET /web/trilhas/new - Exibe formulário de criação
+     * GET /web/trilhas/new - Exibe formulário de nova trilha
      */
     @GetMapping("/new")
     public String newForm(Model model) {
-        model.addAttribute("trilha", new TrilhaRequest(null, null, null, null, null, null));
-        model.addAttribute("competencias", competenciaService.findAll());
+        model.addAttribute("trilha", new TrilhaRequest(null, null, null, null, null));
         model.addAttribute("pageTitle", "Nova Trilha");
         model.addAttribute("isEdit", false);
         return "trilhas/form";
@@ -76,17 +74,16 @@ public class TrilhaViewController {
                          Model model,
                          RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            model.addAttribute("competencias", competenciaService.findAll());
             model.addAttribute("pageTitle", "Nova Trilha");
             model.addAttribute("isEdit", false);
             return "trilhas/form";
         }
 
         try {
-            TrilhaResponse created = trilhaService.create(request);
+            TrilhaResponse created = service.create(request);
             redirectAttributes.addFlashAttribute("success", "Trilha criada com sucesso!");
             return "redirect:/web/trilhas/" + created.id();
-        } catch (IllegalArgumentException e) {
+        } catch (DuplicateEntityException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/web/trilhas";
         }
@@ -97,21 +94,17 @@ public class TrilhaViewController {
      */
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        return trilhaService.findById(id)
+        return service.findById(id)
                 .map(trilha -> {
                     TrilhaRequest request = new TrilhaRequest(
                             trilha.nome(),
                             trilha.descricao(),
                             trilha.nivel(),
                             trilha.cargaHoraria(),
-                            trilha.focoPrincipal(),
-                            trilha.competencias().stream()
-                                    .map(CompetenciaResponse::id)
-                                    .collect(java.util.stream.Collectors.toSet())
+                            trilha.focoPrincipal()
                     );
                     model.addAttribute("trilha", request);
                     model.addAttribute("trilhaId", id);
-                    model.addAttribute("competencias", competenciaService.findAll());
                     model.addAttribute("pageTitle", "Editar Trilha");
                     model.addAttribute("isEdit", true);
                     return "trilhas/form";
@@ -123,7 +116,7 @@ public class TrilhaViewController {
     }
 
     /**
-     * POST /web/trilhas/{id} - Atualiza trilha
+     * POST /web/trilhas/{id} - Atualiza trilha existente
      */
     @PostMapping("/{id}")
     public String update(@PathVariable Long id,
@@ -133,14 +126,13 @@ public class TrilhaViewController {
                          RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("trilhaId", id);
-            model.addAttribute("competencias", competenciaService.findAll());
             model.addAttribute("pageTitle", "Editar Trilha");
             model.addAttribute("isEdit", true);
             return "trilhas/form";
         }
 
         try {
-            return trilhaService.update(id, request)
+            return service.update(id, request)
                     .map(updated -> {
                         redirectAttributes.addFlashAttribute("success", "Trilha atualizada com sucesso!");
                         return "redirect:/web/trilhas/" + id;
@@ -149,18 +141,18 @@ public class TrilhaViewController {
                         redirectAttributes.addFlashAttribute("error", "Trilha não encontrada!");
                         return "redirect:/web/trilhas";
                     });
-        } catch (IllegalArgumentException e) {
+        } catch (DuplicateEntityException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/web/trilhas";
         }
     }
 
     /**
-     * POST /web/trilhas/{id}/delete - Deleta trilha
+     * POST /web/trilhas/{id}/delete - Deleta uma trilha
      */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        if (trilhaService.delete(id)) {
+        if (service.delete(id)) {
             redirectAttributes.addFlashAttribute("success", "Trilha deletada com sucesso!");
         } else {
             redirectAttributes.addFlashAttribute("error", "Trilha não encontrada!");
