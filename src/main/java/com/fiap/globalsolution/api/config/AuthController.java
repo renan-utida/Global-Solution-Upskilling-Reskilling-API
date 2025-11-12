@@ -12,12 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * Controller para autenticação JWT
- * Endpoint de login para gerar tokens
+ * Controller REST para autenticação JWT
  */
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Autenticação", description = "Endpoints de autenticação JWT")
+@Tag(name = "Autenticação", description = "Endpoints para autenticação JWT")
 public class AuthController {
 
     private final AuthenticationManager authManager;
@@ -29,52 +28,21 @@ public class AuthController {
     }
 
     /**
-     * Request para login
+     * DTO para requisição de login
      */
     public record LoginRequest(String username, String password) {}
 
     /**
-     * Response com token JWT
+     * DTO para resposta com token
      */
-    public record TokenResponse(String token) {}
+    public record TokenResponse(String token, String type, long expiresIn) {}
 
     /**
-     * POST /auth/login - Endpoint de login
-     *
-     * Usuários disponíveis:
-     * - admin/admin (ROLE_ADMIN)
-     * - user/user (ROLE_USER)
+     * POST /auth/login - Autentica usuário e retorna token JWT
      */
     @Operation(
-            summary = "Login na aplicação",
-            description = """
-                Autentica o usuário e retorna um token JWT válido por 1 hora.
-                
-                **Usuários disponíveis:**
-                - username: `admin` / password: `admin` (ROLE_ADMIN)
-                - username: `user` / password: `user` (ROLE_USER)
-                
-                **Como usar o token:**
-                1. Copie o token retornado
-                2. Adicione no header Authorization: `Bearer {token}`
-                3. Faça requisições para endpoints protegidos
-                
-                **Exemplo de Request:**
-                ```json
-                {
-                  "username": "admin",
-                  "password": "admin"
-                }
-                ```
-                
-                **Exemplo de Response:**
-                ```json
-                {
-                  "token": "eyJhbGciOiJIUzI1NiJ9..."
-                }
-                ```
-                """,
-            tags = {"Autenticação"}
+            summary = "Login",
+            description = "Autentica usuário e retorna token JWT. Usuários: admin/admin ou user/user"
     )
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest req) {
@@ -89,6 +57,7 @@ public class AuthController {
                 Map.of("role", auth.getAuthorities().iterator().next().getAuthority())
         );
 
-        return ResponseEntity.ok(new TokenResponse(token));
+        // Retorna o token
+        return ResponseEntity.ok(new TokenResponse(token, "Bearer", 3600000));
     }
 }

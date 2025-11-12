@@ -16,8 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * Filtro para interceptar requisições e validar tokens JWT
- * Executa uma vez por requisição
+ * Filtro JWT para autenticação de requisições
+ * Intercepta requisições e valida o token JWT
  */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -38,7 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        // Se não tem header Authorization ou não começa com "Bearer ", passa adiante
+        // Se não tem header Authorization ou não é Bearer, passa adiante
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
@@ -48,13 +48,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         String username = jwtService.extractUsername(token);
 
-        // Se tem username e ainda não está autenticado no contexto
+        // Se tem username e não está autenticado ainda
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails user = userDetailsService.loadUserByUsername(username);
 
             // Valida o token
             if (jwtService.isTokenValid(token, user.getUsername())) {
-                var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                var auth = new UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities()
+                );
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }

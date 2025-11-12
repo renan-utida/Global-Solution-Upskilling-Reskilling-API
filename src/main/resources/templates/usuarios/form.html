@@ -9,11 +9,12 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="bi bi-globe2"></i> Global Solution</a>
+        <a class="navbar-brand" href="/"><i class="bi bi-mortarboard-fill"></i> Global Solution</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link active" th:href="@{/web/usuarios}">Usuários</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/web/trilhas}">Trilhas</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/web/matriculas}">Matrículas</a></li>
             </ul>
         </div>
     </div>
@@ -58,8 +59,7 @@
                             <label for="areaAtuacao" class="form-label">Área de Atuação</label>
                             <input type="text" class="form-control" id="areaAtuacao"
                                    th:field="*{areaAtuacao}"
-                                   maxlength="100"
-                                   placeholder="Ex: Tecnologia, Marketing, Finanças">
+                                   maxlength="100">
                         </div>
 
                         <div class="mb-3">
@@ -69,9 +69,6 @@
                                 <option value="JUNIOR">Júnior</option>
                                 <option value="PLENO">Pleno</option>
                                 <option value="SENIOR">Sênior</option>
-                                <option value="ESPECIALISTA">Especialista</option>
-                                <option value="GERENTE">Gerente</option>
-                                <option value="DIRETOR">Diretor</option>
                             </select>
                         </div>
 

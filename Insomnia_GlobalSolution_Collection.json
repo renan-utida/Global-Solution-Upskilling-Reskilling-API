@@ -1,0 +1,485 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-11-12T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_globalsolution",
+      "_type": "workspace",
+      "name": "Global Solution API",
+      "description": "Collection completa da Global Solution - Plataforma de Upskilling/Reskilling",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080",
+        "token": ""
+      },
+      "dataPropertyOrder": {
+        "&": ["base_url", "token"]
+      },
+      "parentId": "wrk_globalsolution"
+    },
+    {
+      "_id": "jar_cookies",
+      "_type": "cookie_jar",
+      "name": "Default Jar",
+      "cookies": [],
+      "parentId": "wrk_globalsolution"
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "name": "🔐 Autenticação",
+      "description": "Endpoints de autenticação JWT",
+      "parentId": "wrk_globalsolution"
+    },
+    {
+      "_id": "req_login",
+      "_type": "request",
+      "name": "Login",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "description": "Autentica e retorna um token JWT.\n\n**Usuários disponíveis:**\n- admin/admin (ROLE_ADMIN)\n- user/user (ROLE_USER)\n\n**Após o login:**\n1. Copie o token retornado\n2. Cole na variável de ambiente 'token'",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "fld_usuarios",
+      "_type": "request_group",
+      "name": "👥 Usuários",
+      "description": "CRUD completo de Usuários",
+      "parentId": "wrk_globalsolution"
+    },
+    {
+      "_id": "req_usuarios_list",
+      "_type": "request",
+      "name": "Listar Todos",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/usuarios",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Retorna lista de todos os usuários cadastrados.",
+      "parentId": "fld_usuarios"
+    },
+    {
+      "_id": "req_usuarios_getbyid",
+      "_type": "request",
+      "name": "Buscar por ID",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/usuarios/1",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca um usuário específico pelo ID.",
+      "parentId": "fld_usuarios"
+    },
+    {
+      "_id": "req_usuarios_byemail",
+      "_type": "request",
+      "name": "Buscar por Email",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/usuarios/email/ana.silva@email.com",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca um usuário pelo email.",
+      "parentId": "fld_usuarios"
+    },
+    {
+      "_id": "req_usuarios_byarea",
+      "_type": "request",
+      "name": "Buscar por Área",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/usuarios/area/Desenvolvimento",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca usuários por área de atuação.",
+      "parentId": "fld_usuarios"
+    },
+    {
+      "_id": "req_usuarios_create",
+      "_type": "request",
+      "name": "Criar Novo",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/usuarios",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"João Silva\",\n  \"email\": \"joao.silva@email.com\",\n  \"areaAtuacao\": \"Engenharia de Software\",\n  \"nivelCarreira\": \"PLENO\",\n  \"dataCadastro\": \"2025-11-12\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Cria um novo usuário.\n\n**Validações:**\n- nome: obrigatório, máx 100 caracteres\n- email: obrigatório, formato válido, máx 150 caracteres\n- dataCadastro: obrigatória, não pode ser futura",
+      "parentId": "fld_usuarios"
+    },
+    {
+      "_id": "req_usuarios_update",
+      "_type": "request",
+      "name": "Atualizar",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/api/usuarios/1",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Ana Silva Atualizada\",\n  \"email\": \"ana.silva@email.com\",\n  \"areaAtuacao\": \"Desenvolvimento Full Stack\",\n  \"nivelCarreira\": \"SENIOR\",\n  \"dataCadastro\": \"2024-01-15\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Atualiza um usuário existente.",
+      "parentId": "fld_usuarios"
+    },
+    {
+      "_id": "req_usuarios_delete",
+      "_type": "request",
+      "name": "Deletar",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/api/usuarios/1",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Deleta um usuário pelo ID.",
+      "parentId": "fld_usuarios"
+    },
+    {
+      "_id": "fld_trilhas",
+      "_type": "request_group",
+      "name": "📖 Trilhas",
+      "description": "CRUD completo de Trilhas",
+      "parentId": "wrk_globalsolution"
+    },
+    {
+      "_id": "req_trilhas_list",
+      "_type": "request",
+      "name": "Listar Todas",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/trilhas",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Retorna lista de todas as trilhas cadastradas.",
+      "parentId": "fld_trilhas"
+    },
+    {
+      "_id": "req_trilhas_getbyid",
+      "_type": "request",
+      "name": "Buscar por ID",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/trilhas/1",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca uma trilha específica pelo ID.",
+      "parentId": "fld_trilhas"
+    },
+    {
+      "_id": "req_trilhas_bynivel",
+      "_type": "request",
+      "name": "Buscar por Nível",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/trilhas/nivel/INICIANTE",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca trilhas por nível (INICIANTE, INTERMEDIARIO, AVANCADO).",
+      "parentId": "fld_trilhas"
+    },
+    {
+      "_id": "req_trilhas_byfoco",
+      "_type": "request",
+      "name": "Buscar por Foco",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/trilhas/foco/Inteligência Artificial",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca trilhas por foco principal.",
+      "parentId": "fld_trilhas"
+    },
+    {
+      "_id": "req_trilhas_create",
+      "_type": "request",
+      "name": "Criar Nova",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/trilhas",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Cybersecurity Fundamentals\",\n  \"descricao\": \"Aprenda os fundamentos de segurança cibernética para proteger sistemas e dados.\",\n  \"nivel\": \"INTERMEDIARIO\",\n  \"cargaHoraria\": 60,\n  \"focoPrincipal\": \"Segurança da Informação\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Cria uma nova trilha.\n\n**Validações:**\n- nome: obrigatório, máx 150 caracteres\n- nivel: obrigatório (INICIANTE, INTERMEDIARIO, AVANCADO)\n- cargaHoraria: obrigatória, entre 1-1000 horas",
+      "parentId": "fld_trilhas"
+    },
+    {
+      "_id": "req_trilhas_update",
+      "_type": "request",
+      "name": "Atualizar",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/api/trilhas/1",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Fundamentos de IA - Atualizado\",\n  \"descricao\": \"Introdução COMPLETA aos conceitos básicos de IA.\",\n  \"nivel\": \"INICIANTE\",\n  \"cargaHoraria\": 50,\n  \"focoPrincipal\": \"Inteligência Artificial\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Atualiza uma trilha existente.",
+      "parentId": "fld_trilhas"
+    },
+    {
+      "_id": "req_trilhas_delete",
+      "_type": "request",
+      "name": "Deletar",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/api/trilhas/1",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Deleta uma trilha pelo ID.",
+      "parentId": "fld_trilhas"
+    },
+    {
+      "_id": "fld_matriculas",
+      "_type": "request_group",
+      "name": "📝 Matrículas",
+      "description": "CRUD completo de Matrículas",
+      "parentId": "wrk_globalsolution"
+    },
+    {
+      "_id": "req_matriculas_list",
+      "_type": "request",
+      "name": "Listar Todas",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/matriculas",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Retorna lista de todas as matrículas cadastradas.",
+      "parentId": "fld_matriculas"
+    },
+    {
+      "_id": "req_matriculas_getbyid",
+      "_type": "request",
+      "name": "Buscar por ID",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/matriculas/1",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca uma matrícula específica pelo ID.",
+      "parentId": "fld_matriculas"
+    },
+    {
+      "_id": "req_matriculas_byusuario",
+      "_type": "request",
+      "name": "Buscar por Usuário",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/matriculas/usuario/1",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca todas as matrículas de um usuário.",
+      "parentId": "fld_matriculas"
+    },
+    {
+      "_id": "req_matriculas_bytrilha",
+      "_type": "request",
+      "name": "Buscar por Trilha",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/matriculas/trilha/1",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca todas as matrículas de uma trilha.",
+      "parentId": "fld_matriculas"
+    },
+    {
+      "_id": "req_matriculas_bystatus",
+      "_type": "request",
+      "name": "Buscar por Status",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/matriculas/status/EM_ANDAMENTO",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Busca matrículas por status (EM_ANDAMENTO, CONCLUIDA, CANCELADA).",
+      "parentId": "fld_matriculas"
+    },
+    {
+      "_id": "req_matriculas_create",
+      "_type": "request",
+      "name": "Criar Nova",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/matriculas",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuarioId\": 2,\n  \"trilhaId\": 5,\n  \"dataInscricao\": \"2025-11-12\",\n  \"status\": \"EM_ANDAMENTO\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Cria uma nova matrícula.\n\n**Validações:**\n- usuarioId: obrigatório (usuário deve existir)\n- trilhaId: obrigatório (trilha deve existir)\n- dataInscricao: obrigatória, não pode ser futura\n- status: obrigatório (EM_ANDAMENTO, CONCLUIDA, CANCELADA)\n- Não permite matrícula duplicada (mesmo usuário na mesma trilha com status EM_ANDAMENTO)",
+      "parentId": "fld_matriculas"
+    },
+    {
+      "_id": "req_matriculas_update",
+      "_type": "request",
+      "name": "Atualizar",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/api/matriculas/1",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuarioId\": 1,\n  \"trilhaId\": 1,\n  \"dataInscricao\": \"2024-06-01\",\n  \"status\": \"CONCLUIDA\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Atualiza uma matrícula existente.",
+      "parentId": "fld_matriculas"
+    },
+    {
+      "_id": "req_matriculas_delete",
+      "_type": "request",
+      "name": "Deletar",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/api/matriculas/1",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "description": "Deleta uma matrícula pelo ID.",
+      "parentId": "fld_matriculas"
+    },
+    {
+      "_id": "fld_health",
+      "_type": "request_group",
+      "name": "🏥 Sistema",
+      "description": "Endpoints de sistema",
+      "parentId": "wrk_globalsolution"
+    },
+    {
+      "_id": "req_swagger",
+      "_type": "request",
+      "name": "Swagger UI",
+      "method": "GET",
+      "url": "{{ _.base_url }}/swagger-ui.html",
+      "description": "Acesse a documentação interativa da API.\n\n**Abra no navegador para melhor experiência.**",
+      "parentId": "fld_health"
+    },
+    {
+      "_id": "req_h2console",
+      "_type": "request",
+      "name": "H2 Console",
+      "method": "GET",
+      "url": "{{ _.base_url }}/h2-console",
+      "description": "Acesse o console do banco H2.\n\n**Credenciais:**\n- URL: jdbc:h2:mem:globalsolutiondb\n- User: gs2\n- Password: 2025\n\n**Abra no navegador.**",
+      "parentId": "fld_health"
+    }
+  ]
+}

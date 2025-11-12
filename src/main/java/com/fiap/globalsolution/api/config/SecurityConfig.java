@@ -19,9 +19,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Configuração de segurança da aplicação
+ * Configuração de Segurança da aplicação
  * - JWT para API REST
- * - Liberação de rotas públicas (/web/*, /h2-console, /swagger)
+ * - Endpoints web liberados (sem autenticação)
  */
 @Configuration
 @EnableMethodSecurity
@@ -38,17 +38,24 @@ public class SecurityConfig {
                         .frameOptions(frame -> frame.sameOrigin()) // Libera frames do H2
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Rotas públicas
                         .requestMatchers(
+                                // H2 Console
                                 "/h2-console/**",
+
+                                // Swagger/OpenAPI
                                 "/swagger-ui.html", "/swagger-ui/**",
                                 "/v3/api-docs/**",
+
+                                // Auth
                                 "/auth/**",
-                                "/web/**",  // Todas as rotas Thymeleaf são públicas
+
+                                // Web (Thymeleaf) - TODOS LIBERADOS
+                                "/web/**",
+
+                                // Erro
                                 "/error"
                         ).permitAll()
-                        // Qualquer outra rota requer autenticação
-                        .anyRequest().authenticated()
+                        .anyRequest().authenticated() // API REST requer autenticação JWT
                 )
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
@@ -58,9 +65,7 @@ public class SecurityConfig {
     }
 
     /**
-     * Usuários em memória para testes
-     * - admin/admin (ROLE_ADMIN)
-     * - user/user (ROLE_USER)
+     * Usuários em memória para autenticação JWT
      */
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {

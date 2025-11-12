@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Formulário Matrícula</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/"><i class="bi bi-mortarboard-fill"></i> Global Solution</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" th:href="@{/web/usuarios}">Usuários</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/web/trilhas}">Trilhas</a></li>
+                <li class="nav-item"><a class="nav-link active" th:href="@{/web/matriculas}">Matrículas</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-clipboard-check"></i>
+                        <span th:text="${isEdit ? 'Editar Matrícula' : 'Nova Matrícula'}"></span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="${isEdit ? '/web/matriculas/' + matriculaId : '/web/matriculas'}"
+                          th:object="${matricula}"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label for="usuarioId" class="form-label">Usuário *</label>
+                            <select class="form-select" id="usuarioId"
+                                    th:field="*{usuarioId}"
+                                    th:classappend="${#fields.hasErrors('usuarioId')} ? 'is-invalid'"
+                                    required>
+                                <option value="">Selecione...</option>
+                                <option th:each="usuario : ${usuarios}"
+                                        th:value="${usuario.id()}"
+                                        th:text="${usuario.nome() + ' (' + usuario.email() + ')'}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('usuarioId')}"
+                                 th:errors="*{usuarioId}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="trilhaId" class="form-label">Trilha *</label>
+                            <select class="form-select" id="trilhaId"
+                                    th:field="*{trilhaId}"
+                                    th:classappend="${#fields.hasErrors('trilhaId')} ? 'is-invalid'"
+                                    required>
+                                <option value="">Selecione...</option>
+                                <option th:each="trilha : ${trilhas}"
+                                        th:value="${trilha.id()}"
+                                        th:text="${trilha.nome() + ' - ' + trilha.nivel() + ' (' + trilha.cargaHoraria() + 'h)'}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('trilhaId')}"
+                                 th:errors="*{trilhaId}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="dataInscricao" class="form-label">Data de Inscrição *</label>
+                            <input type="date" class="form-control" id="dataInscricao"
+                                   th:field="*{dataInscricao}"
+                                   th:classappend="${#fields.hasErrors('dataInscricao')} ? 'is-invalid'"
+                                   required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('dataInscricao')}"
+                                 th:errors="*{dataInscricao}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status *</label>
+                            <select class="form-select" id="status"
+                                    th:field="*{status}"
+                                    th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'"
+                                    required>
+                                <option value="">Selecione...</option>
+                                <option value="EM_ANDAMENTO">Em Andamento</option>
+                                <option value="CONCLUIDA">Concluída</option>
+                                <option value="CANCELADA">Cancelada</option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}"
+                                 th:errors="*{status}"></div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Salvar
+                            </button>
+                            <a th:href="@{/web/matriculas}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

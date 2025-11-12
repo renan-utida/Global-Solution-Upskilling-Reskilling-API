@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Detalhes da Trilha</title>
+    <title>Detalhes da Matrícula</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
@@ -13,8 +13,8 @@
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" th:href="@{/web/usuarios}">Usuários</a></li>
-                <li class="nav-item"><a class="nav-link active" th:href="@{/web/trilhas}">Trilhas</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/web/matriculas}">Matrículas</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/web/trilhas}">Trilhas</a></li>
+                <li class="nav-item"><a class="nav-link active" th:href="@{/web/matriculas}">Matrículas</a></li>
             </ul>
         </div>
     </div>
@@ -28,12 +28,12 @@
 
     <div class="card">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><i class="bi bi-book"></i> Detalhes da Trilha</h4>
+            <h4 class="mb-0"><i class="bi bi-clipboard-check"></i> Detalhes da Matrícula</h4>
             <div>
-                <a th:href="@{/web/trilhas/{id}/edit(id=${trilha.id()})}" class="btn btn-sm btn-warning">
+                <a th:href="@{/web/matriculas/{id}/edit(id=${matricula.id()})}" class="btn btn-sm btn-warning">
                     <i class="bi bi-pencil"></i> Editar
                 </a>
-                <form th:action="@{/web/trilhas/{id}/delete(id=${trilha.id()})}" method="post" style="display:inline;">
+                <form th:action="@{/web/matriculas/{id}/delete(id=${matricula.id()})}" method="post" style="display:inline;">
                     <button type="submit" class="btn btn-sm btn-danger"
                             onclick="return confirm('Confirma a exclusão?')">
                         <i class="bi bi-trash"></i> Deletar
@@ -45,34 +45,36 @@
             <table class="table table-bordered">
                 <tr>
                     <th width="30%">ID</th>
-                    <td th:text="${trilha.id()}"></td>
+                    <td th:text="${matricula.id()}"></td>
                 </tr>
                 <tr>
-                    <th>Nome</th>
-                    <td th:text="${trilha.nome()}"></td>
-                </tr>
-                <tr>
-                    <th>Descrição</th>
-                    <td th:text="${trilha.descricao() ?: '-'}"></td>
-                </tr>
-                <tr>
-                    <th>Nível</th>
+                    <th>Usuário</th>
                     <td>
-                        <span class="badge"
-                              th:classappend="${trilha.nivel() == 'INICIANTE' ? 'bg-success' : (trilha.nivel() == 'INTERMEDIARIO' ? 'bg-warning' : 'bg-danger')}"
-                              th:text="${trilha.nivel()}"></span>
+                        <a th:href="@{/web/usuarios/{id}(id=${matricula.usuario().id()})}"
+                           th:text="${matricula.usuario().nome()}"></a>
                     </td>
                 </tr>
                 <tr>
-                    <th>Carga Horária</th>
-                    <td th:text="${trilha.cargaHoraria()} + ' horas'"></td>
+                    <th>Trilha</th>
+                    <td>
+                        <a th:href="@{/web/trilhas/{id}(id=${matricula.trilha().id()})}"
+                           th:text="${matricula.trilha().nome()}"></a>
+                    </td>
                 </tr>
                 <tr>
-                    <th>Foco Principal</th>
-                    <td th:text="${trilha.focoPrincipal() ?: '-'}"></td>
+                    <th>Data de Inscrição</th>
+                    <td th:text="${#temporals.format(matricula.dataInscricao(), 'dd/MM/yyyy')}"></td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${matricula.status() == 'EM_ANDAMENTO' ? 'bg-primary' : (matricula.status() == 'CONCLUIDA' ? 'bg-success' : 'bg-secondary')}"
+                              th:text="${matricula.status()}"></span>
+                    </td>
                 </tr>
             </table>
-            <a th:href="@{/web/trilhas}" class="btn btn-secondary">
+            <a th:href="@{/web/matriculas}" class="btn btn-secondary">
                 <i class="bi bi-arrow-left"></i> Voltar
             </a>
         </div>

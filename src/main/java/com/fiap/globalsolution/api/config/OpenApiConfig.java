@@ -14,7 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 /**
- * Configuração do OpenAPI/Swagger para documentação da API
+ * Configuração do Swagger/OpenAPI
+ * Documenta a API REST da Global Solution
  * Acesse: http://localhost:8080/swagger-ui.html
  */
 @Configuration
@@ -36,10 +37,10 @@ public class OpenApiConfig {
                                 
                                 ## 📋 Sobre o Projeto
                                 
-                                Esta plataforma permite que profissionais:
-                                - 👤 Se cadastrem como usuários
-                                - 📖 Acessem trilhas de aprendizagem focadas em competências do futuro
-                                - ✅ Se inscrevam em trilhas para se requalificar profissionalmente
+                                **Funcionalidades:**
+                                - Gerenciamento de Usuários (profissionais/alunos)
+                                - Gerenciamento de Trilhas de Aprendizagem
+                                - Gerenciamento de Matrículas
                                 
                                 ## 🎯 Objetivos de Desenvolvimento Sustentável (ODS)
                                 
@@ -70,21 +71,17 @@ public class OpenApiConfig {
                                 - Bean Validation
                                 - Thymeleaf
                                 
-                                ## 📚 Recursos Disponíveis
+                                ## 👤 Integrantes (2ESPW)
                                 
-                                - **Usuários** - Profissionais/alunos da plataforma
-                                - **Trilhas** - Cursos de aprendizagem
-                                - **Competências** - Habilidades do futuro
-                                - **Matrículas** - Inscrições em trilhas
+                                - **Camila Pedroza da Cunha** – RM 558768
+                                - **Renan Dias Utida** - RM 558540
                                 """)
                         .contact(new Contact()
-                                .name("Renan Dias Utida")
-                                .email("rm558540@fiap.com.br")
-                                .url("https://github.com/renan-utida"))
+                                .name("FIAP - Global Solution 2025")
+                                .url("https://www.fiap.com.br"))
                         .license(new License()
                                 .name("MIT License")
                                 .url("https://opensource.org/licenses/MIT")))
-
                 // Servidores
                 .servers(List.of(
                         new Server()

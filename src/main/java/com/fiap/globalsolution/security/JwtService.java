@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Service para gerenciamento de JWT (JSON Web Token)
- * Responsável por gerar, validar e extrair informações dos tokens
+ * Service para geração e validação de tokens JWT
  */
 @Service
 public class JwtService {
@@ -25,23 +25,21 @@ public class JwtService {
 
     public JwtService(@Value("${jwt.secret}") String secret,
                       @Value("${jwt.expiration}") long expiration) {
-        byte[] keyBytes = Decoders.BASE64.decode(java.util.Base64.getEncoder().encodeToString(secret.getBytes()));
+        byte[] keyBytes = Decoders.BASE64.decode(Base64.getEncoder().encodeToString(secret.getBytes()));
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
         this.expirationMs = expiration;
     }
 
     /**
      * Gera um token JWT para o usuário
-     * @param username Nome do usuário
-     * @param extra Informações extras (ex: roles)
-     * @return Token JWT
      */
-    public String generateToken(String username, Map<String, Object> extra) {
+    public String generateToken(String username, Map<String, Object> extraClaims) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
+
         return Jwts.builder()
                 .setSubject(username)
-                .addClaims(extra)
+                .addClaims(extraClaims)
                 .setIssuedAt(now)
                 .setExpiration(exp)
                 .signWith(signingKey, SignatureAlgorithm.HS256)
@@ -64,7 +62,7 @@ public class JwtService {
     }
 
     /**
-     * Extrai uma claim específica do token
+     * Extrai um claim específico do token
      */
     public <T> T extractClaim(String token, Function<Claims, T> resolver) {
         Claims claims = Jwts.parserBuilder()
