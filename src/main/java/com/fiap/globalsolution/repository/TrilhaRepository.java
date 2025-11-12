@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository para a entidade Trilha
@@ -16,32 +17,37 @@ import java.util.List;
 public interface TrilhaRepository extends JpaRepository<Trilha, Long> {
 
     /**
-     * Busca trilhas por nível
-     * @param nivel Nível da trilha (INICIANTE, INTERMEDIARIO, AVANCADO)
-     * @return Lista de trilhas
+     * Verifica se já existe uma trilha com todos os dados iguais
+     * (usado para evitar duplicatas completas)
      */
-    List<Trilha> findByNivel(String nivel);
+    @Query("SELECT t FROM Trilha t WHERE t.nome = :nome " +
+            "AND (t.descricao = :descricao OR (t.descricao IS NULL AND :descricao IS NULL)) " +
+            "AND t.nivel = :nivel " +
+            "AND t.cargaHoraria = :cargaHoraria " +
+            "AND (t.focoPrincipal = :focoPrincipal OR (t.focoPrincipal IS NULL AND :focoPrincipal IS NULL))")
+    Optional<Trilha> findByAllFields(
+            @Param("nome") String nome,
+            @Param("descricao") String descricao,
+            @Param("nivel") String nivel,
+            @Param("cargaHoraria") Integer cargaHoraria,
+            @Param("focoPrincipal") String focoPrincipal
+    );
 
     /**
-     * Busca trilhas por foco principal
-     * @param focoPrincipal Foco principal da trilha
-     * @return Lista de trilhas
+     * Busca trilhas por nível (INICIANTE, INTERMEDIARIO, AVANCADO)
      */
-    @Query("SELECT t FROM Trilha t WHERE LOWER(t.focoPrincipal) LIKE LOWER(CONCAT('%', :foco, '%'))")
-    List<Trilha> findByFocoPrincipalContaining(@Param("foco") String focoPrincipal);
+    @Query("SELECT t FROM Trilha t WHERE t.nivel = :nivel")
+    List<Trilha> findByNivel(@Param("nivel") String nivel);
 
     /**
-     * Busca trilhas com carga horária menor ou igual ao valor informado
-     * @param maxHoras Carga horária máxima
-     * @return Lista de trilhas
+     * Busca trilhas por foco principal (IA, Dados, Soft Skills, etc)
      */
-    List<Trilha> findByCargaHorariaLessThanEqual(Integer maxHoras);
+    @Query("SELECT t FROM Trilha t WHERE LOWER(t.focoPrincipal) LIKE LOWER(CONCAT('%', :focoPrincipal, '%'))")
+    List<Trilha> findByFocoPrincipal(@Param("focoPrincipal") String focoPrincipal);
 
     /**
-     * Busca trilhas por nome (busca parcial, case insensitive)
-     * @param nome Nome da trilha
-     * @return Lista de trilhas
+     * Busca trilhas com carga horária mínima
      */
-    @Query("SELECT t FROM Trilha t WHERE LOWER(t.nome) LIKE LOWER(CONCAT('%', :nome, '%'))")
-    List<Trilha> findByNomeContaining(@Param("nome") String nome);
+    @Query("SELECT t FROM Trilha t WHERE t.cargaHoraria >= :cargaHorariaMinima")
+    List<Trilha> findByCargaHorariaMinima(@Param("cargaHorariaMinima") Integer cargaHorariaMinima);
 }

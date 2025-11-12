@@ -3,7 +3,8 @@ package com.fiap.globalsolution.dto;
 import java.time.LocalDate;
 
 /**
- * DTO para resposta de Matricula
+ * DTO para respostas de Matricula
+ * Inclui dados resumidos do usuário e trilha
  */
 public record MatriculaResponse(
         Long id,
@@ -11,4 +12,4 @@ public record MatriculaResponse(
         TrilhaResponse trilha,
         LocalDate dataInscricao,
         String status
-) { }
+) {}

@@ -16,24 +16,34 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     /**
-     * Busca um usuário por email
-     * @param email Email do usuário
-     * @return Optional contendo o usuário se encontrado
+     * Busca um usuário pelo email (útil para validação de duplicatas)
      */
     Optional<Usuario> findByEmail(String email);
 
     /**
-     * Verifica se já existe um usuário com o email informado
-     * @param email Email a ser verificado
-     * @return true se existe, false caso contrário
+     * Verifica se já existe um usuário com todos os dados iguais
+     * (usado para evitar duplicatas completas)
      */
-    boolean existsByEmail(String email);
+    @Query("SELECT u FROM Usuario u WHERE u.nome = :nome " +
+            "AND u.email = :email " +
+            "AND (u.areaAtuacao = :areaAtuacao OR (u.areaAtuacao IS NULL AND :areaAtuacao IS NULL)) " +
+            "AND (u.nivelCarreira = :nivelCarreira OR (u.nivelCarreira IS NULL AND :nivelCarreira IS NULL))")
+    Optional<Usuario> findByAllFields(
+            @Param("nome") String nome,
+            @Param("email") String email,
+            @Param("areaAtuacao") String areaAtuacao,
+            @Param("nivelCarreira") String nivelCarreira
+    );
 
     /**
      * Busca usuários por área de atuação
-     * @param areaAtuacao Área de atuação
-     * @return Lista de usuários
      */
     @Query("SELECT u FROM Usuario u WHERE LOWER(u.areaAtuacao) LIKE LOWER(CONCAT('%', :areaAtuacao, '%'))")
-    java.util.List<Usuario> findByAreaAtuacaoContaining(@Param("areaAtuacao") String areaAtuacao);
+    Optional<Usuario> findByAreaAtuacao(@Param("areaAtuacao") String areaAtuacao);
+
+    /**
+     * Busca usuários por nível de carreira
+     */
+    @Query("SELECT u FROM Usuario u WHERE u.nivelCarreira = :nivelCarreira")
+    Optional<Usuario> findByNivelCarreira(@Param("nivelCarreira") String nivelCarreira);
 }

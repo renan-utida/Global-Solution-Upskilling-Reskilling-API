@@ -6,7 +6,6 @@ import com.fiap.globalsolution.dto.TrilhaResponse;
 import com.fiap.globalsolution.exception.TrilhaNaoEncontradaException;
 import com.fiap.globalsolution.model.Trilha;
 import com.fiap.globalsolution.repository.TrilhaRepository;
-import com.fiap.globalsolution.repository.CompetenciaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

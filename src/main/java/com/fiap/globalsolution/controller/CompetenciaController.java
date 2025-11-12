@@ -1,7 +1,5 @@
 package com.fiap.globalsolution.controller;
 
-import com.fiap.globalsolution.dto.CompetenciaRequest;
-import com.fiap.globalsolution.dto.CompetenciaResponse;
 import com.fiap.globalsolution.service.CompetenciaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

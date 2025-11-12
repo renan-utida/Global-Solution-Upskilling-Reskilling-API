@@ -2,7 +2,6 @@ package com.fiap.globalsolution.controller;
 
 import com.fiap.globalsolution.dto.TrilhaRequest;
 import com.fiap.globalsolution.dto.TrilhaResponse;
-import com.fiap.globalsolution.dto.CompetenciaResponse;
 import com.fiap.globalsolution.service.TrilhaService;
 import com.fiap.globalsolution.service.CompetenciaService;
 import jakarta.validation.Valid;

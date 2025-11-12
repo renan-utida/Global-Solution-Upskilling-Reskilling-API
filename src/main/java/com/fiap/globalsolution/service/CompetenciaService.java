@@ -1,10 +1,6 @@
 package com.fiap.globalsolution.service;
 
-import com.fiap.globalsolution.dto.CompetenciaMapper;
-import com.fiap.globalsolution.dto.CompetenciaRequest;
-import com.fiap.globalsolution.dto.CompetenciaResponse;
 import com.fiap.globalsolution.exception.CompetenciaNaoEncontradaException;
-import com.fiap.globalsolution.repository.CompetenciaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

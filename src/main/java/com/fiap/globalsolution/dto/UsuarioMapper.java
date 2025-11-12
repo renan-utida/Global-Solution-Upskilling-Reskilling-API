@@ -3,7 +3,7 @@ package com.fiap.globalsolution.dto;
 import com.fiap.globalsolution.model.Usuario;
 
 /**
- * Mapper para conversão entre Usuario e seus DTOs
+ * Mapper para conversão entre Usuario e DTOs
  */
 public class UsuarioMapper {
 
@@ -32,16 +32,5 @@ public class UsuarioMapper {
                 usuario.getNivelCarreira(),
                 usuario.getDataCadastro()
         );
-    }
-
-    /**
-     * Atualiza uma entidade Usuario existente com dados do UsuarioRequest
-     */
-    public static void updateEntityFromRequest(Usuario usuario, UsuarioRequest request) {
-        usuario.setNome(request.nome());
-        usuario.setEmail(request.email());
-        usuario.setAreaAtuacao(request.areaAtuacao());
-        usuario.setNivelCarreira(request.nivelCarreira());
-        usuario.setDataCadastro(request.dataCadastro());
     }
 }

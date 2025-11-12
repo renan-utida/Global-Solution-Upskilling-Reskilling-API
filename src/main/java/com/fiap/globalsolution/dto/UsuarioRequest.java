@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
 /**
- * DTO para criação/atualização de Usuario
+ * DTO para requisições de criação/atualização de Usuario
  */
 public record UsuarioRequest(
         @NotBlank(message = "Nome é obrigatório")

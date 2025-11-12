@@ -4,14 +4,13 @@ import jakarta.validation.constraints.*;
 import java.util.Set;
 
 /**
- * DTO para criação/atualização de Trilha
+ * DTO para requisições de criação/atualização de Trilha
  */
 public record TrilhaRequest(
         @NotBlank(message = "Nome é obrigatório")
         @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres")
         String nome,
 
-        @Size(max = 1000, message = "Descrição deve ter no máximo 1000 caracteres")
         String descricao,
 
         @NotBlank(message = "Nível é obrigatório")
@@ -25,7 +24,5 @@ public record TrilhaRequest(
         Integer cargaHoraria,
 
         @Size(max = 100, message = "Foco principal deve ter no máximo 100 caracteres")
-        String focoPrincipal,
-
-        Set<Long> competenciasIds
-) { }
+        String focoPrincipal
+) {}

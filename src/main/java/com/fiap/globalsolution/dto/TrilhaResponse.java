@@ -1,9 +1,7 @@
 package com.fiap.globalsolution.dto;
 
-import java.util.Set;
-
 /**
- * DTO para resposta de Trilha
+ * DTO para respostas de Trilha
  */
 public record TrilhaResponse(
         Long id,
@@ -11,6 +9,5 @@ public record TrilhaResponse(
         String descricao,
         String nivel,
         Integer cargaHoraria,
-        String focoPrincipal,
-        Set<CompetenciaResponse> competencias
-) { }
+        String focoPrincipal
+) {}
