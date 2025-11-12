@@ -3,11 +3,15 @@ package com.fiap.globalsolution.service;
 import com.fiap.globalsolution.dto.MatriculaMapper;
 import com.fiap.globalsolution.dto.MatriculaRequest;
 import com.fiap.globalsolution.dto.MatriculaResponse;
-import com.fiap.globalsolution.exception.MatriculaNaoEncontradaException;
+import com.fiap.globalsolution.exception.DuplicateEntityException;
+import com.fiap.globalsolution.exception.TrilhaNaoEncontradaException;
+import com.fiap.globalsolution.exception.UsuarioNaoEncontradoException;
 import com.fiap.globalsolution.model.Matricula;
-import com.fiap.globalsolution.model.Usuario;
 import com.fiap.globalsolution.model.Trilha;
+import com.fiap.globalsolution.model.Usuario;
 import com.fiap.globalsolution.repository.MatriculaRepository;
+import com.fiap.globalsolution.repository.TrilhaRepository;
+import com.fiap.globalsolution.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,23 +20,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Service para gerenciamento de Matriculas
- * Contém regras de negócio e validações
+ * Service para regras de negócio de Matricula
  */
 @Service
 @Transactional
 public class MatriculaService {
 
     private final MatriculaRepository repository;
-    private final UsuarioService usuarioService;
-    private final TrilhaService trilhaService;
+    private final UsuarioRepository usuarioRepository;
+    private final TrilhaRepository trilhaRepository;
 
     public MatriculaService(MatriculaRepository repository,
-                            UsuarioService usuarioService,
-                            TrilhaService trilhaService) {
+                            UsuarioRepository usuarioRepository,
+                            TrilhaRepository trilhaRepository) {
         this.repository = repository;
-        this.usuarioService = usuarioService;
-        this.trilhaService = trilhaService;
+        this.usuarioRepository = usuarioRepository;
+        this.trilhaRepository = trilhaRepository;
     }
 
     /**
@@ -53,52 +56,50 @@ public class MatriculaService {
     }
 
     /**
-     * Busca todas as matrículas de um usuário
-     */
-    public List<MatriculaResponse> findByUsuarioId(Long usuarioId) {
-        return repository.findByUsuarioId(usuarioId).stream()
-                .map(MatriculaMapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Busca todas as matrículas de uma trilha
-     */
-    public List<MatriculaResponse> findByTrilhaId(Long trilhaId) {
-        return repository.findByTrilhaId(trilhaId).stream()
-                .map(MatriculaMapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Busca matrículas por status
-     */
-    public List<MatriculaResponse> findByStatus(String status) {
-        return repository.findByStatus(status).stream()
-                .map(MatriculaMapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Cria uma nova matrícula
      * Validações:
-     * - Verifica se usuário existe
-     * - Verifica se trilha existe
-     * - Verifica se usuário já está matriculado na trilha
+     * - Usuario deve existir
+     * - Trilha deve existir
+     * - Não permite matrícula duplicada (mesmo usuário na mesma trilha com status EM_ANDAMENTO)
+     * - Não permite cadastro de matrícula com todos os dados iguais
      */
     public MatriculaResponse create(MatriculaRequest request) {
-        // Busca usuário e trilha (lança exceção se não existir)
-        Usuario usuario = usuarioService.getUsuarioEntityById(request.usuarioId());
-        Trilha trilha = trilhaService.getTrilhaEntityById(request.trilhaId());
+        // Validação 1: Verifica se o usuário existe
+        Usuario usuario = usuarioRepository.findById(request.usuarioId())
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(
+                        "Usuário com ID " + request.usuarioId() + " não encontrado"
+                ));
 
-        // Validação: Verifica se já existe matrícula ativa do usuário nesta trilha
-        if (repository.existsByUsuarioIdAndTrilhaId(request.usuarioId(), request.trilhaId())) {
-            throw new IllegalArgumentException(
-                    "O usuário " + usuario.getNome() +
-                            " já está matriculado na trilha " + trilha.getNome()
+        // Validação 2: Verifica se a trilha existe
+        Trilha trilha = trilhaRepository.findById(request.trilhaId())
+                .orElseThrow(() -> new TrilhaNaoEncontradaException(
+                        "Trilha com ID " + request.trilhaId() + " não encontrada"
+                ));
+
+        // Validação 3: Não permitir matrícula duplicada (usuário já matriculado na mesma trilha com status EM_ANDAMENTO)
+        Optional<Matricula> matriculaAtiva = repository.findMatriculaAtivaByUsuarioAndTrilha(usuario, trilha);
+        if (matriculaAtiva.isPresent()) {
+            throw new DuplicateEntityException(
+                    "Usuário " + usuario.getNome() + " já está matriculado na trilha " + trilha.getNome() +
+                            " com status EM_ANDAMENTO"
             );
         }
 
+        // Validação 4: Não permitir duplicata completa
+        Optional<Matricula> matriculaExistente = repository.findByAllFields(
+                usuario,
+                trilha,
+                request.dataInscricao(),
+                request.status()
+        );
+
+        if (matriculaExistente.isPresent()) {
+            throw new DuplicateEntityException(
+                    "Já existe uma matrícula cadastrada com estes dados"
+            );
+        }
+
+        // Se passou nas validações, cria a matrícula
         Matricula matricula = MatriculaMapper.toEntity(request, usuario, trilha);
         Matricula saved = repository.save(matricula);
         return MatriculaMapper.toResponse(saved);
@@ -106,38 +107,58 @@ public class MatriculaService {
 
     /**
      * Atualiza uma matrícula existente
-     * Permite atualizar status, data, ou até trocar de trilha
+     * Validações:
+     * - Usuario deve existir
+     * - Trilha deve existir
+     * - Não permite atualizar para matrícula duplicada
+     * - Não permite atualizar para dados idênticos a outra matrícula
      */
     public Optional<MatriculaResponse> update(Long id, MatriculaRequest request) {
         return repository.findById(id)
                 .map(matricula -> {
-                    // Busca usuário e trilha (lança exceção se não existir)
-                    Usuario usuario = usuarioService.getUsuarioEntityById(request.usuarioId());
-                    Trilha trilha = trilhaService.getTrilhaEntityById(request.trilhaId());
+                    // Validação 1: Verifica se o usuário existe
+                    Usuario usuario = usuarioRepository.findById(request.usuarioId())
+                            .orElseThrow(() -> new UsuarioNaoEncontradoException(
+                                    "Usuário com ID " + request.usuarioId() + " não encontrado"
+                            ));
 
-                    // Validação: Se estiver trocando de trilha, verifica duplicata
-                    if (!matricula.getTrilha().getIdTrilha().equals(request.trilhaId())) {
-                        if (repository.existsByUsuarioIdAndTrilhaId(request.usuarioId(), request.trilhaId())) {
-                            throw new IllegalArgumentException(
-                                    "O usuário " + usuario.getNome() +
-                                            " já está matriculado na trilha " + trilha.getNome()
+                    // Validação 2: Verifica se a trilha existe
+                    Trilha trilha = trilhaRepository.findById(request.trilhaId())
+                            .orElseThrow(() -> new TrilhaNaoEncontradaException(
+                                    "Trilha com ID " + request.trilhaId() + " não encontrada"
+                            ));
+
+                    // Validação 3: Se status for EM_ANDAMENTO, não permitir duplicata (mesmo usuário na mesma trilha)
+                    if ("EM_ANDAMENTO".equals(request.status())) {
+                        Optional<Matricula> matriculaAtiva = repository.findMatriculaAtivaByUsuarioAndTrilha(usuario, trilha);
+                        if (matriculaAtiva.isPresent() && !matriculaAtiva.get().getIdMatricula().equals(id)) {
+                            throw new DuplicateEntityException(
+                                    "Usuário " + usuario.getNome() + " já está matriculado na trilha " + trilha.getNome() +
+                                            " com status EM_ANDAMENTO"
                             );
                         }
                     }
 
-                    MatriculaMapper.updateEntityFromRequest(matricula, request, usuario, trilha);
-                    Matricula updated = repository.save(matricula);
-                    return MatriculaMapper.toResponse(updated);
-                });
-    }
+                    // Validação 4: Não permitir duplicata completa com outra matrícula
+                    Optional<Matricula> matriculaExistente = repository.findByAllFields(
+                            usuario,
+                            trilha,
+                            request.dataInscricao(),
+                            request.status()
+                    );
 
-    /**
-     * Atualiza apenas o status de uma matrícula
-     */
-    public Optional<MatriculaResponse> updateStatus(Long id, String novoStatus) {
-        return repository.findById(id)
-                .map(matricula -> {
-                    matricula.setStatus(novoStatus);
+                    if (matriculaExistente.isPresent() && !matriculaExistente.get().getIdMatricula().equals(id)) {
+                        throw new DuplicateEntityException(
+                                "Já existe outra matrícula cadastrada com estes dados"
+                        );
+                    }
+
+                    // Atualiza os campos
+                    matricula.setUsuario(usuario);
+                    matricula.setTrilha(trilha);
+                    matricula.setDataInscricao(request.dataInscricao());
+                    matricula.setStatus(request.status());
+
                     Matricula updated = repository.save(matricula);
                     return MatriculaMapper.toResponse(updated);
                 });
@@ -153,23 +174,5 @@ public class MatriculaService {
                     return true;
                 })
                 .orElse(false);
-    }
-
-    /**
-     * Verifica se uma matrícula existe por ID
-     */
-    public boolean existsById(Long id) {
-        return repository.existsById(id);
-    }
-
-    /**
-     * Busca entidade Matricula por ID (para uso interno)
-     * Lança exceção se não encontrado
-     */
-    public Matricula getMatriculaEntityById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new MatriculaNaoEncontradaException(
-                        "Matrícula não encontrada com ID: " + id
-                ));
     }
 }

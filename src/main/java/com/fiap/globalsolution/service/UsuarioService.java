@@ -3,7 +3,7 @@ package com.fiap.globalsolution.service;
 import com.fiap.globalsolution.dto.UsuarioMapper;
 import com.fiap.globalsolution.dto.UsuarioRequest;
 import com.fiap.globalsolution.dto.UsuarioResponse;
-import com.fiap.globalsolution.exception.UsuarioNaoEncontradoException;
+import com.fiap.globalsolution.exception.DuplicateEntityException;
 import com.fiap.globalsolution.model.Usuario;
 import com.fiap.globalsolution.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -14,8 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Service para gerenciamento de Usuarios
- * Contém regras de negócio e validações
+ * Service para regras de negócio de Usuario
  */
 @Service
 @Transactional
@@ -45,34 +44,35 @@ public class UsuarioService {
     }
 
     /**
-     * Busca um usuário por email
-     */
-    public Optional<UsuarioResponse> findByEmail(String email) {
-        return repository.findByEmail(email)
-                .map(UsuarioMapper::toResponse);
-    }
-
-    /**
-     * Busca usuários por área de atuação
-     */
-    public List<UsuarioResponse> findByAreaAtuacao(String areaAtuacao) {
-        return repository.findByAreaAtuacaoContaining(areaAtuacao).stream()
-                .map(UsuarioMapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Cria um novo usuário
-     * Validação: verifica se email já existe
+     * Validações:
+     * - Email não pode estar duplicado
+     * - Não permite cadastro de usuário com todos os dados iguais
      */
     public UsuarioResponse create(UsuarioRequest request) {
-        // Validação: Email único
-        if (repository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException(
+        // Validação 1: Email único
+        Optional<Usuario> usuarioComMesmoEmail = repository.findByEmail(request.email());
+        if (usuarioComMesmoEmail.isPresent()) {
+            throw new DuplicateEntityException(
                     "Já existe um usuário cadastrado com o email: " + request.email()
             );
         }
 
+        // Validação 2: Não permitir duplicata completa
+        Optional<Usuario> usuarioExistente = repository.findByAllFields(
+                request.nome(),
+                request.email(),
+                request.areaAtuacao(),
+                request.nivelCarreira()
+        );
+
+        if (usuarioExistente.isPresent()) {
+            throw new DuplicateEntityException(
+                    "Já existe um usuário cadastrado com estes dados: " + request.nome()
+            );
+        }
+
+        // Se passou nas validações, cria o usuário
         Usuario usuario = UsuarioMapper.toEntity(request);
         Usuario saved = repository.save(usuario);
         return UsuarioMapper.toResponse(saved);
@@ -80,21 +80,42 @@ public class UsuarioService {
 
     /**
      * Atualiza um usuário existente
-     * Validação: verifica se email já existe (exceto para o próprio usuário)
+     * Validações:
+     * - Não permite alterar para um email já existente (exceto se for o mesmo usuário)
+     * - Não permite atualizar para dados idênticos a outro usuário
      */
     public Optional<UsuarioResponse> update(Long id, UsuarioRequest request) {
         return repository.findById(id)
                 .map(usuario -> {
-                    // Validação: Email único (permitindo manter o próprio email)
-                    Optional<Usuario> usuarioComEmail = repository.findByEmail(request.email());
-                    if (usuarioComEmail.isPresent() &&
-                            !usuarioComEmail.get().getIdUsuario().equals(id)) {
-                        throw new IllegalArgumentException(
+                    // Validação 1: Email único (exceto se for o mesmo email do próprio usuário)
+                    Optional<Usuario> usuarioComMesmoEmail = repository.findByEmail(request.email());
+                    if (usuarioComMesmoEmail.isPresent() && !usuarioComMesmoEmail.get().getIdUsuario().equals(id)) {
+                        throw new DuplicateEntityException(
                                 "Já existe outro usuário cadastrado com o email: " + request.email()
                         );
                     }
 
-                    UsuarioMapper.updateEntityFromRequest(usuario, request);
+                    // Validação 2: Não permitir duplicata completa com outro usuário
+                    Optional<Usuario> usuarioExistente = repository.findByAllFields(
+                            request.nome(),
+                            request.email(),
+                            request.areaAtuacao(),
+                            request.nivelCarreira()
+                    );
+
+                    if (usuarioExistente.isPresent() && !usuarioExistente.get().getIdUsuario().equals(id)) {
+                        throw new DuplicateEntityException(
+                                "Já existe outro usuário cadastrado com estes dados: " + request.nome()
+                        );
+                    }
+
+                    // Atualiza os campos
+                    usuario.setNome(request.nome());
+                    usuario.setEmail(request.email());
+                    usuario.setAreaAtuacao(request.areaAtuacao());
+                    usuario.setNivelCarreira(request.nivelCarreira());
+                    usuario.setDataCadastro(request.dataCadastro());
+
                     Usuario updated = repository.save(usuario);
                     return UsuarioMapper.toResponse(updated);
                 });
@@ -110,23 +131,5 @@ public class UsuarioService {
                     return true;
                 })
                 .orElse(false);
-    }
-
-    /**
-     * Verifica se um usuário existe por ID
-     */
-    public boolean existsById(Long id) {
-        return repository.existsById(id);
-    }
-
-    /**
-     * Busca entidade Usuario por ID (para uso interno)
-     * Lança exceção se não encontrado
-     */
-    public Usuario getUsuarioEntityById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new UsuarioNaoEncontradoException(
-                        "Usuário não encontrado com ID: " + id
-                ));
     }
 }
