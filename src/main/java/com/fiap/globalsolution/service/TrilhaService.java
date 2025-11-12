@@ -4,7 +4,6 @@ import com.fiap.globalsolution.dto.TrilhaMapper;
 import com.fiap.globalsolution.dto.TrilhaRequest;
 import com.fiap.globalsolution.dto.TrilhaResponse;
 import com.fiap.globalsolution.exception.TrilhaNaoEncontradaException;
-import com.fiap.globalsolution.model.Competencia;
 import com.fiap.globalsolution.model.Trilha;
 import com.fiap.globalsolution.repository.TrilhaRepository;
 import com.fiap.globalsolution.repository.CompetenciaRepository;

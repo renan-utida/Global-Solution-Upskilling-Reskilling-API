@@ -10,25 +10,14 @@
 	</parent>
 	<groupId>com.fiap</groupId>
 	<artifactId>global-solution-api</artifactId>
-	<version>1.0.0</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>global-solution-api</name>
 	<description>Plataforma de Upskilling/Reskilling para o Futuro do Trabalho - Global Solution 2025</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+
 	<dependencies>
 		<!-- Spring Boot Starters -->
 		<dependency>

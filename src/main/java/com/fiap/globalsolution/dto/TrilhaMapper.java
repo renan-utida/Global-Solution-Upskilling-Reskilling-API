@@ -1,7 +1,6 @@
 package com.fiap.globalsolution.dto;
 
 import com.fiap.globalsolution.model.Trilha;
-import com.fiap.globalsolution.model.Competencia;
 
 import java.util.Set;
 import java.util.stream.Collectors;

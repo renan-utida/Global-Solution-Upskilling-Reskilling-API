@@ -47,14 +47,34 @@ public class AuthController {
      */
     @Operation(
             summary = "Login na aplicação",
-            description = "Autentica o usuário e retorna um token JWT válido por 1 hora.\n\n" +
-                    "**Usuários disponíveis:**\n" +
-                    "- username: `admin` / password: `admin` (ROLE_ADMIN)\n" +
-                    "- username: `user` / password: `user` (ROLE_USER)\n\n" +
-                    "**Como usar o token:**\n" +
-                    "1. Copie o token retornado\n" +
-                    "2. Adicione no header Authorization: `Bearer {token}`\n" +
-                    "3. Faça requisições para endpoints protegidos"
+            description = """
+                Autentica o usuário e retorna um token JWT válido por 1 hora.
+                
+                **Usuários disponíveis:**
+                - username: `admin` / password: `admin` (ROLE_ADMIN)
+                - username: `user` / password: `user` (ROLE_USER)
+                
+                **Como usar o token:**
+                1. Copie o token retornado
+                2. Adicione no header Authorization: `Bearer {token}`
+                3. Faça requisições para endpoints protegidos
+                
+                **Exemplo de Request:**
+                ```json
+                {
+                  "username": "admin",
+                  "password": "admin"
+                }
+                ```
+                
+                **Exemplo de Response:**
+                ```json
+                {
+                  "token": "eyJhbGciOiJIUzI1NiJ9..."
+                }
+                ```
+                """,
+            tags = {"Autenticação"}
     )
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest req) {

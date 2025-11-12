@@ -39,7 +39,7 @@ public class Trilha {
     private String focoPrincipal;
 
     // Relacionamento N:N com Competencia
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "trilha_competencia",
             joinColumns = @JoinColumn(name = "trilha_id"),

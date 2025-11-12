@@ -1,7 +1,5 @@
 package com.fiap.globalsolution.dto;
 
-import com.fiap.globalsolution.model.Competencia;
-
 /**
  * Mapper para conversão entre Competencia e seus DTOs
  */
