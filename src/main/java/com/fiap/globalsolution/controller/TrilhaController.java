@@ -2,15 +2,19 @@ package com.fiap.globalsolution.controller;
 
 import com.fiap.globalsolution.dto.TrilhaRequest;
 import com.fiap.globalsolution.dto.TrilhaResponse;
+import com.fiap.globalsolution.exception.DuplicateEntityException;
 import com.fiap.globalsolution.service.TrilhaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller REST para gerenciamento de Trilhas
@@ -18,7 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/trilhas")
-@Tag(name = "Trilhas", description = "Gerenciamento de trilhas de aprendizagem")
+@Tag(name = "Trilhas", description = "Endpoints para gerenciamento de trilhas de aprendizagem")
 public class TrilhaController {
 
     private final TrilhaService service;
@@ -30,9 +34,9 @@ public class TrilhaController {
     /**
      * GET /api/trilhas - Lista todas as trilhas
      */
-    @Operation(summary = "Lista todas as trilhas", description = "Retorna uma lista com todas as trilhas cadastradas")
+    @Operation(summary = "Lista todas as trilhas", description = "Retorna uma lista com todas as trilhas de aprendizagem cadastradas")
     @GetMapping
-    public ResponseEntity<List<TrilhaResponse>> list() {
+    public ResponseEntity<List<TrilhaResponse>> listarTodas() {
         List<TrilhaResponse> trilhas = service.findAll();
         return ResponseEntity.ok(trilhas);
     }
@@ -40,9 +44,9 @@ public class TrilhaController {
     /**
      * GET /api/trilhas/{id} - Busca trilha por ID
      */
-    @Operation(summary = "Busca trilha por ID", description = "Retorna uma trilha específica pelo ID")
+    @Operation(summary = "Busca trilha por ID", description = "Retorna uma trilha específica pelo seu ID")
     @GetMapping("/{id}")
-    public ResponseEntity<TrilhaResponse> findById(@PathVariable Long id) {
+    public ResponseEntity<TrilhaResponse> buscarPorId(@PathVariable Long id) {
         return service.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -53,81 +57,71 @@ public class TrilhaController {
      */
     @Operation(summary = "Busca trilhas por nível", description = "Retorna trilhas filtradas por nível (INICIANTE, INTERMEDIARIO, AVANCADO)")
     @GetMapping("/nivel/{nivel}")
-    public ResponseEntity<List<TrilhaResponse>> findByNivel(@PathVariable String nivel) {
+    public ResponseEntity<List<TrilhaResponse>> buscarPorNivel(@PathVariable String nivel) {
         List<TrilhaResponse> trilhas = service.findByNivel(nivel);
-        return ResponseEntity.ok(trilhas);
+        return trilhas.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(trilhas);
     }
 
     /**
-     * GET /api/trilhas/foco/{foco} - Busca trilhas por foco principal
+     * GET /api/trilhas/foco/{focoPrincipal} - Busca trilhas por foco principal
      */
-    @Operation(summary = "Busca trilhas por foco", description = "Retorna trilhas filtradas por foco principal")
-    @GetMapping("/foco/{foco}")
-    public ResponseEntity<List<TrilhaResponse>> findByFoco(@PathVariable String foco) {
-        List<TrilhaResponse> trilhas = service.findByFocoPrincipal(foco);
-        return ResponseEntity.ok(trilhas);
-    }
-
-    /**
-     * GET /api/trilhas/nome/{nome} - Busca trilhas por nome
-     */
-    @Operation(summary = "Busca trilhas por nome", description = "Retorna trilhas que contenham o nome informado")
-    @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<TrilhaResponse>> findByNome(@PathVariable String nome) {
-        List<TrilhaResponse> trilhas = service.findByNome(nome);
-        return ResponseEntity.ok(trilhas);
+    @Operation(summary = "Busca trilhas por foco principal", description = "Retorna trilhas filtradas por foco principal (ex: IA, Dados, Soft Skills)")
+    @GetMapping("/foco/{focoPrincipal}")
+    public ResponseEntity<List<TrilhaResponse>> buscarPorFocoPrincipal(@PathVariable String focoPrincipal) {
+        List<TrilhaResponse> trilhas = service.findByFocoPrincipal(focoPrincipal);
+        return trilhas.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(trilhas);
     }
 
     /**
      * POST /api/trilhas - Cria nova trilha
      */
-    @Operation(summary = "Cria nova trilha", description = "Cadastra uma nova trilha de aprendizagem")
+    @Operation(summary = "Cria uma nova trilha", description = "Cadastra uma nova trilha de aprendizagem")
     @PostMapping
-    public ResponseEntity<TrilhaResponse> create(@Valid @RequestBody TrilhaRequest request) {
-        TrilhaResponse created = service.create(request);
-        URI location = URI.create("/api/trilhas/" + created.id());
-        return ResponseEntity.created(location).body(created);
+    public ResponseEntity<?> criar(@Valid @RequestBody TrilhaRequest request) {
+        try {
+            TrilhaResponse created = service.create(request);
+            URI location = URI.create("/api/trilhas/" + created.id());
+            return ResponseEntity.created(location).body(created);
+        } catch (DuplicateEntityException e) {
+            Map<String, Object> error = new LinkedHashMap<>();
+            error.put("status", HttpStatus.CONFLICT.value());
+            error.put("error", "Duplicate Entity");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
     }
 
     /**
      * PUT /api/trilhas/{id} - Atualiza trilha existente
      */
-    @Operation(summary = "Atualiza trilha", description = "Atualiza os dados de uma trilha existente")
+    @Operation(summary = "Atualiza uma trilha", description = "Atualiza os dados de uma trilha existente")
     @PutMapping("/{id}")
-    public ResponseEntity<TrilhaResponse> update(@PathVariable Long id, @Valid @RequestBody TrilhaRequest request) {
-        return service.update(id, request)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody TrilhaRequest request) {
+        try {
+            return service.update(id, request)
+                    .map(trilha -> ResponseEntity.ok((Object) trilha))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (DuplicateEntityException e) {
+            Map<String, Object> error = new LinkedHashMap<>();
+            error.put("status", HttpStatus.CONFLICT.value());
+            error.put("error", "Duplicate Entity");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
     }
 
     /**
-     * POST /api/trilhas/{trilhaId}/competencias/{competenciaId} - Adiciona competência à trilha
+     * DELETE /api/trilhas/{id} - Deleta uma trilha por ID
      */
-    @Operation(summary = "Adiciona competência", description = "Associa uma competência a uma trilha")
-    @PostMapping("/{trilhaId}/competencias/{competenciaId}")
-    public ResponseEntity<?> addCompetencia(@PathVariable Long trilhaId, @PathVariable Long competenciaId) {
-        return service.addCompetencia(trilhaId, competenciaId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * DELETE /api/trilhas/{trilhaId}/competencias/{competenciaId} - Remove competência da trilha
-     */
-    @Operation(summary = "Remove competência", description = "Remove a associação de uma competência com uma trilha")
-    @DeleteMapping("/{trilhaId}/competencias/{competenciaId}")
-    public ResponseEntity<?> removeCompetencia(@PathVariable Long trilhaId, @PathVariable Long competenciaId) {
-        return service.removeCompetencia(trilhaId, competenciaId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * DELETE /api/trilhas/{id} - Deleta trilha
-     */
-    @Operation(summary = "Deleta trilha", description = "Remove uma trilha do sistema")
+    @Operation(summary = "Deleta uma trilha", description = "Remove uma trilha do sistema pelo seu ID")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         return service.delete(id)
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();

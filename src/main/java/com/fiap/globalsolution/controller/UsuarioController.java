@@ -2,15 +2,19 @@ package com.fiap.globalsolution.controller;
 
 import com.fiap.globalsolution.dto.UsuarioRequest;
 import com.fiap.globalsolution.dto.UsuarioResponse;
+import com.fiap.globalsolution.exception.DuplicateEntityException;
 import com.fiap.globalsolution.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller REST para gerenciamento de Usuarios
@@ -18,7 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/usuarios")
-@Tag(name = "Usuários", description = "Gerenciamento de usuários da plataforma de Upskilling/Reskilling")
+@Tag(name = "Usuários", description = "Endpoints para gerenciamento de usuários da plataforma de Upskilling/Reskilling")
 public class UsuarioController {
 
     private final UsuarioService service;
@@ -32,7 +36,7 @@ public class UsuarioController {
      */
     @Operation(summary = "Lista todos os usuários", description = "Retorna uma lista com todos os usuários cadastrados")
     @GetMapping
-    public ResponseEntity<List<UsuarioResponse>> list() {
+    public ResponseEntity<List<UsuarioResponse>> listarTodos() {
         List<UsuarioResponse> usuarios = service.findAll();
         return ResponseEntity.ok(usuarios);
     }
@@ -40,9 +44,9 @@ public class UsuarioController {
     /**
      * GET /api/usuarios/{id} - Busca usuário por ID
      */
-    @Operation(summary = "Busca usuário por ID", description = "Retorna um usuário específico pelo ID")
+    @Operation(summary = "Busca usuário por ID", description = "Retorna um usuário específico pelo seu ID")
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> findById(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable Long id) {
         return service.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -51,52 +55,71 @@ public class UsuarioController {
     /**
      * GET /api/usuarios/email/{email} - Busca usuário por email
      */
-    @Operation(summary = "Busca usuário por email", description = "Retorna um usuário pelo email")
+    @Operation(summary = "Busca usuário por email", description = "Retorna um usuário específico pelo seu email")
     @GetMapping("/email/{email}")
-    public ResponseEntity<UsuarioResponse> findByEmail(@PathVariable String email) {
+    public ResponseEntity<UsuarioResponse> buscarPorEmail(@PathVariable String email) {
         return service.findByEmail(email)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     /**
-     * GET /api/usuarios/area/{area} - Busca usuários por área de atuação
+     * GET /api/usuarios/area/{areaAtuacao} - Busca usuários por área de atuação
      */
-    @Operation(summary = "Busca usuários por área", description = "Retorna usuários filtrados por área de atuação")
-    @GetMapping("/area/{area}")
-    public ResponseEntity<List<UsuarioResponse>> findByAreaAtuacao(@PathVariable String area) {
-        List<UsuarioResponse> usuarios = service.findByAreaAtuacao(area);
-        return ResponseEntity.ok(usuarios);
-    }
-
-    /**
-     * POST /api/usuarios - Cria novo usuário
-     */
-    @Operation(summary = "Cria novo usuário", description = "Cadastra um novo usuário na plataforma")
-    @PostMapping
-    public ResponseEntity<UsuarioResponse> create(@Valid @RequestBody UsuarioRequest request) {
-        UsuarioResponse created = service.create(request);
-        URI location = URI.create("/api/usuarios/" + created.id());
-        return ResponseEntity.created(location).body(created);
-    }
-
-    /**
-     * PUT /api/usuarios/{id} - Atualiza usuário existente
-     */
-    @Operation(summary = "Atualiza usuário", description = "Atualiza os dados de um usuário existente")
-    @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> update(@PathVariable Long id, @Valid @RequestBody UsuarioRequest request) {
-        return service.update(id, request)
+    @Operation(summary = "Busca usuários por área de atuação", description = "Retorna usuários filtrados por área de atuação")
+    @GetMapping("/area/{areaAtuacao}")
+    public ResponseEntity<UsuarioResponse> buscarPorAreaAtuacao(@PathVariable String areaAtuacao) {
+        return service.findByAreaAtuacao(areaAtuacao)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     /**
-     * DELETE /api/usuarios/{id} - Deleta usuário
+     * POST /api/usuarios - Cria novo usuário
      */
-    @Operation(summary = "Deleta usuário", description = "Remove um usuário do sistema")
+    @Operation(summary = "Cria um novo usuário", description = "Cadastra um novo usuário na plataforma")
+    @PostMapping
+    public ResponseEntity<?> criar(@Valid @RequestBody UsuarioRequest request) {
+        try {
+            UsuarioResponse created = service.create(request);
+            URI location = URI.create("/api/usuarios/" + created.id());
+            return ResponseEntity.created(location).body(created);
+        } catch (DuplicateEntityException e) {
+            Map<String, Object> error = new LinkedHashMap<>();
+            error.put("status", HttpStatus.CONFLICT.value());
+            error.put("error", "Duplicate Entity");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
+    }
+
+    /**
+     * PUT /api/usuarios/{id} - Atualiza usuário existente
+     */
+    @Operation(summary = "Atualiza um usuário", description = "Atualiza os dados de um usuário existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody UsuarioRequest request) {
+        try {
+            return service.update(id, request)
+                    .map(usuario -> ResponseEntity.ok((Object) usuario))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (DuplicateEntityException e) {
+            Map<String, Object> error = new LinkedHashMap<>();
+            error.put("status", HttpStatus.CONFLICT.value());
+            error.put("error", "Duplicate Entity");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
+    }
+
+    /**
+     * DELETE /api/usuarios/{id} - Deleta usuário por ID
+     */
+    @Operation(summary = "Deleta um usuário", description = "Remove um usuário do sistema pelo seu ID")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         return service.delete(id)
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
