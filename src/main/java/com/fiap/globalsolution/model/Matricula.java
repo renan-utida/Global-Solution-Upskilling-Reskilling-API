@@ -34,7 +34,7 @@ public class Matricula {
     @Column(name = "data_inscricao", nullable = false)
     private LocalDate dataInscricao;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "status", nullable = false, length = 50)
     private String status; // EM_ANDAMENTO, CONCLUIDA, CANCELADA
 
     // Construtor sem ID (útil para criação)

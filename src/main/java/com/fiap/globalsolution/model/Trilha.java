@@ -23,13 +23,13 @@ public class Trilha {
     @Column(name = "id_trilha")
     private Long idTrilha;
 
-    @Column(nullable = false, length = 150)
+    @Column(name = "nome", nullable = false, length = 150)
     private String nome;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "descricao", columnDefinition = "TEXT")
     private String descricao;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "nivel", nullable = false, length = 50)
     private String nivel; // INICIANTE, INTERMEDIARIO, AVANCADO
 
     @Column(name = "carga_horaria", nullable = false)
@@ -37,15 +37,6 @@ public class Trilha {
 
     @Column(name = "foco_principal", length = 100)
     private String focoPrincipal;
-
-    // Relacionamento N:N com Competencia
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "trilha_competencia",
-            joinColumns = @JoinColumn(name = "trilha_id"),
-            inverseJoinColumns = @JoinColumn(name = "competencia_id")
-    )
-    private Set<Competencia> competencias = new HashSet<>();
 
     // Construtor sem ID (útil para criação)
     public Trilha(String nome, String descricao, String nivel, Integer cargaHoraria, String focoPrincipal) {
@@ -61,6 +52,7 @@ public class Trilha {
         return "Trilha{" +
                 "idTrilha=" + idTrilha +
                 ", nome='" + nome + '\'' +
+                ", descricao='" + descricao + '\'' +
                 ", nivel='" + nivel + '\'' +
                 ", cargaHoraria=" + cargaHoraria +
                 ", focoPrincipal='" + focoPrincipal + '\'' +
