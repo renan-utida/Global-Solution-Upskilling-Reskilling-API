@@ -81,11 +81,18 @@ public class TrilhaController {
      */
     @Operation(summary = "Cria uma nova trilha", description = "Cadastra uma nova trilha de aprendizagem")
     @PostMapping
-    public ResponseEntity<TrilhaResponse> criar(@Valid @RequestBody TrilhaRequest request) {
-        // O @RestControllerAdvice intercepta DuplicateEntityException automaticamente
-        TrilhaResponse created = service.create(request);
-        URI location = URI.create("/api/trilhas/" + created.id());
-        return ResponseEntity.created(location).body(created);
+    public ResponseEntity<?> criar(@Valid @RequestBody TrilhaRequest request) {
+        try {
+            TrilhaResponse created = service.create(request);
+            URI location = URI.create("/api/trilhas/" + created.id());
+            return ResponseEntity.created(location).body(created);
+        } catch (DuplicateEntityException e) {
+            Map<String, Object> error = new LinkedHashMap<>();
+            error.put("status", HttpStatus.CONFLICT.value());
+            error.put("error", "Duplicate Entity");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
     }
 
     /**
@@ -93,13 +100,20 @@ public class TrilhaController {
      */
     @Operation(summary = "Atualiza uma trilha", description = "Atualiza os dados de uma trilha existente")
     @PutMapping("/{id}")
-    public ResponseEntity<TrilhaResponse> atualizar(
+    public ResponseEntity<?> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody TrilhaRequest request) {
-        // O @RestControllerAdvice intercepta DuplicateEntityException automaticamente
-        return service.update(id, request)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return service.update(id, request)
+                    .map(trilha -> ResponseEntity.ok((Object) trilha))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (DuplicateEntityException e) {
+            Map<String, Object> error = new LinkedHashMap<>();
+            error.put("status", HttpStatus.CONFLICT.value());
+            error.put("error", "Duplicate Entity");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
     }
 
     /**

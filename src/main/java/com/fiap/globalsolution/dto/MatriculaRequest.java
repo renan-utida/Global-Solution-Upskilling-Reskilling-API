@@ -14,7 +14,6 @@ public record MatriculaRequest(
         Long trilhaId,
 
         @NotNull(message = "Data de inscrição é obrigatória")
-        @PastOrPresent(message = "Data de inscrição não pode ser futura")
         LocalDate dataInscricao,
 
         @NotBlank(message = "Status é obrigatório")

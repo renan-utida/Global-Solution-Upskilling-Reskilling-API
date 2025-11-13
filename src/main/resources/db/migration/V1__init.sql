@@ -1,7 +1,6 @@
 -- ========================================================================
 -- GLOBAL SOLUTION 2025 - O FUTURO DO TRABALHO
 -- Plataforma de Upskilling/Reskilling
--- Script compatível com H2 e Oracle
 -- ========================================================================
 
 -- ========================================================================
@@ -63,97 +62,56 @@ CREATE INDEX idx_matriculas_status ON matriculas(status);
 -- USUARIOS (5 exemplos)
 -- ========================================================================
 INSERT INTO usuarios (nome, email, area_atuacao, nivel_carreira, data_cadastro) VALUES
-('Ana Silva', 'ana.silva@email.com', 'Desenvolvimento de Software', 'PLENO', TO_DATE('2024-01-15', 'YYYY-MM-DD'));
-
-INSERT INTO usuarios (nome, email, area_atuacao, nivel_carreira, data_cadastro) VALUES
-('Carlos Mendes', 'carlos.mendes@email.com', 'Análise de Dados', 'JUNIOR', TO_DATE('2024-02-20', 'YYYY-MM-DD'));
-
-INSERT INTO usuarios (nome, email, area_atuacao, nivel_carreira, data_cadastro) VALUES
-('Beatriz Santos', 'beatriz.santos@email.com', 'Marketing Digital', 'SENIOR', TO_DATE('2024-03-10', 'YYYY-MM-DD'));
-
-INSERT INTO usuarios (nome, email, area_atuacao, nivel_carreira, data_cadastro) VALUES
-('Diego Oliveira', 'diego.oliveira@email.com', 'Recursos Humanos', 'PLENO', TO_DATE('2024-04-05', 'YYYY-MM-DD'));
-
-INSERT INTO usuarios (nome, email, area_atuacao, nivel_carreira, data_cadastro) VALUES
-('Fernanda Costa', 'fernanda.costa@email.com', 'Gestão de Projetos', 'SENIOR', TO_DATE('2024-05-12', 'YYYY-MM-DD'));
+('Ana Silva', 'ana.silva@email.com', 'Desenvolvimento de Software', 'PLENO', '2024-01-15'),
+('Carlos Mendes', 'carlos.mendes@email.com', 'Análise de Dados', 'JUNIOR', '2024-02-20'),
+('Beatriz Santos', 'beatriz.santos@email.com', 'Marketing Digital', 'SENIOR', '2024-03-10'),
+('Diego Oliveira', 'diego.oliveira@email.com', 'Recursos Humanos', 'PLENO', '2024-04-05'),
+('Fernanda Costa', 'fernanda.costa@email.com', 'Gestão de Projetos', 'SENIOR', '2024-05-12');
 
 -- ========================================================================
 -- TRILHAS (10 exemplos - IA, Dados, Soft Skills, etc)
 -- ========================================================================
-
+INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
 -- Trilhas de IA
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
-('Fundamentos de Inteligência Artificial', 'Introdução aos conceitos básicos de IA, Machine Learning e suas aplicações no mercado de trabalho.', 'INICIANTE', 40, 'Inteligência Artificial');
-
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
-('Machine Learning Avançado', 'Técnicas avançadas de ML, Deep Learning e Neural Networks para projetos complexos.', 'AVANCADO', 80, 'Inteligência Artificial');
+('Fundamentos de Inteligência Artificial', 'Introdução aos conceitos básicos de IA, Machine Learning e suas aplicações no mercado de trabalho.', 'INICIANTE', 40, 'Inteligência Artificial'),
+('Machine Learning Avançado', 'Técnicas avançadas de ML, Deep Learning e Neural Networks para projetos complexos.', 'AVANCADO', 80, 'Inteligência Artificial'),
 
 -- Trilhas de Dados
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
-('Análise de Dados com Python', 'Aprenda a analisar e visualizar dados usando Python, Pandas e Matplotlib.', 'INICIANTE', 50, 'Análise de Dados');
-
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
-('Big Data e Data Engineering', 'Trabalhe com grandes volumes de dados usando Spark, Hadoop e ferramentas de cloud.', 'INTERMEDIARIO', 70, 'Engenharia de Dados');
+('Análise de Dados com Python', 'Aprenda a analisar e visualizar dados usando Python, Pandas e Matplotlib.', 'INICIANTE', 50, 'Análise de Dados'),
+('Big Data e Data Engineering', 'Trabalhe com grandes volumes de dados usando Spark, Hadoop e ferramentas de cloud.', 'INTERMEDIARIO', 70, 'Engenharia de Dados'),
 
 -- Trilhas de Desenvolvimento
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
-('Desenvolvimento Web Full Stack', 'Construa aplicações web completas usando React, Node.js e bancos de dados modernos.', 'INTERMEDIARIO', 100, 'Desenvolvimento Web');
-
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
-('DevOps e Cloud Computing', 'Domine práticas DevOps, CI/CD, Docker, Kubernetes e cloud (AWS, Azure, GCP).', 'AVANCADO', 90, 'DevOps');
+('Desenvolvimento Web Full Stack', 'Construa aplicações web completas usando React, Node.js e bancos de dados modernos.', 'INTERMEDIARIO', 100, 'Desenvolvimento Web'),
+('DevOps e Cloud Computing', 'Domine práticas DevOps, CI/CD, Docker, Kubernetes e cloud (AWS, Azure, GCP).', 'AVANCADO', 90, 'DevOps'),
 
 -- Trilhas de Soft Skills
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
-('Liderança e Gestão de Equipes', 'Desenvolva habilidades de liderança, comunicação e gestão de pessoas para o futuro do trabalho.', 'INTERMEDIARIO', 30, 'Soft Skills');
-
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
-('Agilidade e Metodologias Ágeis', 'Aprenda Scrum, Kanban e outras metodologias ágeis para ambientes de trabalho modernos.', 'INICIANTE', 25, 'Metodologias Ágeis');
+('Liderança e Gestão de Equipes', 'Desenvolva habilidades de liderança, comunicação e gestão de pessoas para o futuro do trabalho.', 'INTERMEDIARIO', 30, 'Soft Skills'),
+('Agilidade e Metodologias Ágeis', 'Aprenda Scrum, Kanban e outras metodologias ágeis para ambientes de trabalho modernos.', 'INICIANTE', 25, 'Metodologias Ágeis'),
 
 -- Trilhas de Negócios
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
-('Product Management 2030', 'Gestão de produtos digitais com foco em IA, dados e experiência do usuário.', 'INTERMEDIARIO', 60, 'Gestão de Produtos');
-
-INSERT INTO trilhas (nome, descricao, nivel, carga_horaria, foco_principal) VALUES
+('Product Management 2030', 'Gestão de produtos digitais com foco em IA, dados e experiência do usuário.', 'INTERMEDIARIO', 60, 'Gestão de Produtos'),
 ('Transformação Digital nas Empresas', 'Como liderar processos de transformação digital e inovação organizacional.', 'AVANCADO', 45, 'Transformação Digital');
 
 -- ========================================================================
 -- MATRICULAS (10 exemplos - variados)
 -- ========================================================================
-
+INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
 -- Ana Silva (Desenvolvedora) - 2 trilhas
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(1, 1, TO_DATE('2024-06-01', 'YYYY-MM-DD'), 'CONCLUIDA');      -- Fundamentos de IA (concluída)
-
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(1, 5, TO_DATE('2024-07-15', 'YYYY-MM-DD'), 'EM_ANDAMENTO');   -- Desenvolvimento Web Full Stack (em andamento)
-
+(1, 1, '2024-06-01', 'CONCLUIDA'),      -- Fundamentos de IA (concluída)
+(1, 5, '2024-07-15', 'EM_ANDAMENTO'),   -- Desenvolvimento Web Full Stack (em andamento)
 
 -- Carlos Mendes (Analista de Dados) - 2 trilhas
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(2, 3, TO_DATE('2024-06-10', 'YYYY-MM-DD'), 'EM_ANDAMENTO');   -- Análise de Dados com Python (em andamento)
-
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(2, 8, TO_DATE('2024-07-01', 'YYYY-MM-DD'), 'EM_ANDAMENTO');   -- Agilidade e Metodologias Ágeis (em andamento)
-
+(2, 3, '2024-06-10', 'EM_ANDAMENTO'),   -- Análise de Dados com Python (em andamento)
+(2, 8, '2024-07-01', 'EM_ANDAMENTO'),   -- Agilidade e Metodologias Ágeis (em andamento)
 
 -- Beatriz Santos (Marketing) - 2 trilhas
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(3, 7, TO_DATE('2024-05-20', 'YYYY-MM-DD'), 'CONCLUIDA');      -- Liderança e Gestão de Equipes (concluída)
-
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(3, 10, TO_DATE('2024-08-01', 'YYYY-MM-DD'), 'EM_ANDAMENTO');  -- Transformação Digital (em andamento)
-
+(3, 7, '2024-05-20', 'CONCLUIDA'),      -- Liderança e Gestão de Equipes (concluída)
+(3, 10, '2024-08-01', 'EM_ANDAMENTO'),  -- Transformação Digital (em andamento)
 
 -- Diego Oliveira (RH) - 2 trilhas
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(4, 7, TO_DATE('2024-06-15', 'YYYY-MM-DD'), 'EM_ANDAMENTO');   -- Liderança e Gestão de Equipes (em andamento)
-
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(4, 8, TO_DATE('2024-07-10', 'YYYY-MM-DD'), 'CONCLUIDA');      -- Agilidade e Metodologias Ágeis (concluída)
+(4, 7, '2024-06-15', 'EM_ANDAMENTO'),   -- Liderança e Gestão de Equipes (em andamento)
+(4, 8, '2024-07-10', 'CONCLUIDA'),      -- Agilidade e Metodologias Ágeis (concluída)
 
 -- Fernanda Costa (Gestão de Projetos) - 2 trilhas
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(5, 6, TO_DATE('2024-05-01', 'YYYY-MM-DD'), 'CANCELADA');      -- DevOps e Cloud Computing (cancelada)
-
-INSERT INTO matriculas (usuario_id, trilha_id, data_inscricao, status) VALUES
-(5, 9, TO_DATE('2024-08-05', 'YYYY-MM-DD'), 'EM_ANDAMENTO');   -- Product Management 2030 (em andamento)
+(5, 6, '2024-05-01', 'CANCELADA'),      -- DevOps e Cloud Computing (cancelada)
+(5, 9, '2024-08-05', 'EM_ANDAMENTO');   -- Product Management 2030 (em andamento)
