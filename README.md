@@ -1,7 +1,7 @@
 # 🌍 Global Solution 2025 - O Futuro do Trabalho
 
 ![Java](https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=java)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.10-brightgreen?style=for-the-badge&logo=spring)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen?style=for-the-badge&logo=spring)
 ![H2 Database](https://img.shields.io/badge/H2-Database-blue?style=for-the-badge)
 ![JWT](https://img.shields.io/badge/JWT-Authentication-red?style=for-the-badge)
 ![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36?style=for-the-badge&logo=apache-maven)
@@ -40,16 +40,16 @@ O mercado de trabalho está passando por **transformações aceleradas** devido 
 
 ### 💡 Nossa Solução
 
-**Global Solution API** é uma plataforma **completa de Upskilling/Reskilling** voltada para o futuro do trabalho (2030+), desenvolvida como parte da Global Solution 2025 da FIAP. 
+**Global Solution API** é uma plataforma **completa de Upskilling/Reskilling** voltada para o futuro do trabalho (2030+), desenvolvida como parte da Global Solution 2025 da FIAP.
 
 A plataforma oferece:
 
 - 👥 **Cadastro completo de usuários** (profissionais/alunos) com validações robustas
 - 📖 **Trilhas de aprendizagem** focadas em competências do futuro:
-  - 🤖 **Tecnológicas:** IA, Machine Learning, Análise de Dados, Big Data, Cloud Computing, DevOps
-  - 💻 **Desenvolvimento:** Web Full Stack, Programação, APIs, Arquitetura de Software
-  - 🧠 **Soft Skills:** Liderança, Gestão de Equipes, Comunicação, Colaboração, Agilidade
-  - 📈 **Negócios:** Product Management, Transformação Digital, Inovação, Estratégia
+   - 🤖 **Tecnológicas:** IA, Machine Learning, Análise de Dados, Big Data, Cloud Computing, DevOps
+   - 💻 **Desenvolvimento:** Web Full Stack, Programação, APIs, Arquitetura de Software
+   - 🧠 **Soft Skills:** Liderança, Gestão de Equipes, Comunicação, Colaboração, Agilidade
+   - 📈 **Negócios:** Product Management, Transformação Digital, Inovação, Estratégia
 - 📝 **Sistema de matrículas** para acompanhamento do progresso profissional
 - 🔐 **API REST segura** com autenticação JWT
 - 🌐 **Interface web completa** para gestão (Thymeleaf + Bootstrap)
@@ -101,7 +101,7 @@ Democratiza o acesso à **educação e requalificação**, promovendo:
 
 ### Backend
 - ☕ **Java 17** - Linguagem de programação
-- 🌱 **Spring Boot 3.4.10** - Framework principal
+- 🌱 **Spring Boot 3.3.4** - Framework principal
 - 🗂️ **Spring Data JPA** - Persistência de dados com ORM
 - 🔐 **Spring Security** - Segurança e controle de acesso
 - 🔑 **JWT (JSON Web Token)** - Autenticação stateless
@@ -112,12 +112,11 @@ Democratiza o acesso à **educação e requalificação**, promovendo:
 - 🎨 **Bootstrap Icons** - Biblioteca de ícones
 
 ### Banco de Dados
-- 🗄️ **H2 Database** - Banco relacional em memória (desenvolvimento)
-- 🗄️ **Oracle Database** - Banco relacional (produção)
+- 🗄️ **H2 Database** - Banco relacional em memória
 - 🔄 **Flyway** - Controle de versionamento e migrations do banco
 
 ### Documentação
-- 📚 **Springdoc OpenAPI 3.0** - Documentação automática da API
+- 📚 **Springdoc OpenAPI 2.6.0** - Documentação automática da API
 - 📖 **Swagger UI** - Interface interativa para testar endpoints
 
 ### Ferramentas de Desenvolvimento
@@ -165,11 +164,14 @@ O projeto segue a **arquitetura em camadas (Layered Architecture)** com separaç
 │                  CAMADA DE SEGURANÇA                        │
 │            (JWT Service + Auth Filter + Config)             │
 ├─────────────────────────────────────────────────────────────┤
+│               TRATAMENTO DE EXCEÇÕES                        │
+│          (GlobalExceptionHandler + Custom Exceptions)       │
+├─────────────────────────────────────────────────────────────┤
 │                  CAMADA DE CONFIGURAÇÃO                     │
-│          (OpenAPI + Security + Profiles + Flyway)           │
+│          (OpenAPI + Security + Flyway)                      │
 ├─────────────────────────────────────────────────────────────┤
 │                    BANCO DE DADOS                           │
-│              H2 (dev) │ Oracle (prod)                       │
+│                      H2 (in-memory)                         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -202,7 +204,6 @@ src/main/java/com/fiap/globalsolution/
 │
 ├── 📂 exception/                     # Exceções customizadas + Handler
 │   ├── GlobalExceptionHandler.java   # @RestControllerAdvice global
-│   ├── ErrorResponse.java            # DTO padronizado de erros
 │   ├── UsuarioNaoEncontradoException.java
 │   ├── TrilhaNaoEncontradaException.java
 │   ├── MatriculaNaoEncontradaException.java
@@ -239,9 +240,7 @@ src/main/resources/
 │   ├── trilhas/                      # Views trilhas
 │   └── matriculas/                   # Views matrículas
 │
-├── application.yml                   # Config principal
-├── application-dev.yml               # Perfil desenvolvimento (H2)
-└── application-prod.yml              # Perfil produção (Oracle)
+└── application.yml                   # Configuração única com H2
 
 src/test/java/                        # Testes unitários
 ├── SuiteDeTestesGeral.java           # Suite principal
@@ -264,7 +263,6 @@ src/test/java/                        # Testes unitários
 - ✅ Campos: nome, email, área de atuação, nível de carreira
 - ✅ CRUD completo (Create, Read, Update, Delete)
 - ✅ Busca por ID, email e área de atuação
-- ✅ Status ativo/inativo
 - ✅ Histórico de matrículas por usuário
 
 ### 📖 Gestão de Trilhas de Aprendizagem
@@ -308,13 +306,14 @@ src/test/java/                        # Testes unitários
 - ✅ `@PastOrPresent` para datas
 - ✅ Mensagens de erro personalizadas
 - ✅ Validações de duplicatas no Service
+- ✅ **@RestControllerAdvice** para tratamento global de exceções
 
 ### 📊 Controle e Auditoria
 - ✅ Histórico completo de operações
 - ✅ Rastreabilidade de matrículas
-- ✅ Timestamps em todas as operações
+- ✅ Timestamps em todas as respostas de erro
 - ✅ Tratamento de exceções centralizado
-- ✅ Logs de erros estruturados
+- ✅ Respostas padronizadas de erro
 
 ---
 
@@ -333,20 +332,7 @@ git clone https://github.com/seu-usuario/global-solution-api.git
 cd global-solution-api
 ```
 
-### 🔧 2. Configure as Credenciais (Opcional - apenas para Oracle)
-
-Se for usar o perfil **prod** (Oracle), edite `src/main/resources/application-prod.yml`:
-```yaml
-spring:
-  datasource:
-    url: jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl
-    username: SEU_RM_AQUI
-    password: SUA_SENHA_AQUI
-```
-
-**⚠️ Nota:** O perfil **dev** (H2) já vem configurado e pronto para uso!
-
-### 🔨 3. Compile o Projeto
+### 🔨 2. Compile o Projeto
 ```bash
 mvn clean install
 ```
@@ -554,7 +540,7 @@ Content-Type: application/json
 **Response (200 OK):**
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzAwMDAwMDAwLCJleHAiOjE3MDAwMDM2MDB9.xyz...",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "type": "Bearer",
   "expiresIn": 3600000
 }
@@ -562,40 +548,7 @@ Content-Type: application/json
 
 ---
 
-### 👥 2. Listar Todos os Usuários
-
-**Request:**
-```http
-GET /api/usuarios HTTP/1.1
-Host: localhost:8080
-Authorization: Bearer SEU_TOKEN_AQUI
-```
-
-**Response (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "nome": "Ana Silva",
-    "email": "ana.silva@email.com",
-    "areaAtuacao": "Desenvolvimento de Software",
-    "nivelCarreira": "PLENO",
-    "dataCadastro": "2024-01-15"
-  },
-  {
-    "id": 2,
-    "nome": "Carlos Mendes",
-    "email": "carlos.mendes@email.com",
-    "areaAtuacao": "Análise de Dados",
-    "nivelCarreira": "JUNIOR",
-    "dataCadastro": "2024-02-20"
-  }
-]
-```
-
----
-
-### 👥 3. Criar Novo Usuário
+### 👥 2. Criar Novo Usuário
 
 **Request:**
 ```http
@@ -625,48 +578,9 @@ Content-Type: application/json
 }
 ```
 
-**Validações:**
-- ✅ `nome`: obrigatório, máx 100 caracteres
-- ✅ `email`: obrigatório, formato válido, único no sistema
-- ✅ `dataCadastro`: obrigatória, não pode ser futura
-
 ---
 
-### 👥 4. Buscar Usuário por ID
-
-**Request:**
-```http
-GET /api/usuarios/1 HTTP/1.1
-Host: localhost:8080
-Authorization: Bearer SEU_TOKEN_AQUI
-```
-
-**Response (200 OK):**
-```json
-{
-  "id": 1,
-  "nome": "Ana Silva",
-  "email": "ana.silva@email.com",
-  "areaAtuacao": "Desenvolvimento de Software",
-  "nivelCarreira": "PLENO",
-  "dataCadastro": "2024-01-15"
-}
-```
-
-**Response (404 Not Found):**
-```json
-{
-  "timestamp": "2025-11-13 15:30:45",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Usuário com ID 999 não encontrado",
-  "path": "/api/usuarios/999"
-}
-```
-
----
-
-### 📖 5. Criar Nova Trilha
+### 📖 3. Criar Nova Trilha
 
 **Request:**
 ```http
@@ -677,7 +591,7 @@ Content-Type: application/json
 
 {
   "nome": "Cybersecurity Fundamentals",
-  "descricao": "Aprenda os fundamentos de segurança cibernética para proteger sistemas e dados.",
+  "descricao": "Aprenda os fundamentos de segurança cibernética.",
   "nivel": "INTERMEDIARIO",
   "cargaHoraria": 60,
   "focoPrincipal": "Segurança da Informação"
@@ -689,54 +603,16 @@ Content-Type: application/json
 {
   "id": 11,
   "nome": "Cybersecurity Fundamentals",
-  "descricao": "Aprenda os fundamentos de segurança cibernética para proteger sistemas e dados.",
+  "descricao": "Aprenda os fundamentos de segurança cibernética.",
   "nivel": "INTERMEDIARIO",
   "cargaHoraria": 60,
   "focoPrincipal": "Segurança da Informação"
 }
 ```
 
-**Validações:**
-- ✅ `nome`: obrigatório, máx 150 caracteres
-- ✅ `nivel`: obrigatório (INICIANTE, INTERMEDIARIO, AVANCADO)
-- ✅ `cargaHoraria`: obrigatória, entre 1-1000 horas
-
 ---
 
-### 📖 6. Buscar Trilhas por Nível
-
-**Request:**
-```http
-GET /api/trilhas/nivel/INICIANTE HTTP/1.1
-Host: localhost:8080
-Authorization: Bearer SEU_TOKEN_AQUI
-```
-
-**Response (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "nome": "Fundamentos de Inteligência Artificial",
-    "descricao": "Introdução aos conceitos básicos de IA...",
-    "nivel": "INICIANTE",
-    "cargaHoraria": 40,
-    "focoPrincipal": "Inteligência Artificial"
-  },
-  {
-    "id": 3,
-    "nome": "Análise de Dados com Python",
-    "descricao": "Aprenda a analisar e visualizar dados...",
-    "nivel": "INICIANTE",
-    "cargaHoraria": 50,
-    "focoPrincipal": "Análise de Dados"
-  }
-]
-```
-
----
-
-### 📝 7. Criar Nova Matrícula
+### 📝 4. Criar Nova Matrícula
 
 **Request:**
 ```http
@@ -778,46 +654,9 @@ Content-Type: application/json
 }
 ```
 
-**Validações:**
-- ✅ `usuarioId`: obrigatório (usuário deve existir)
-- ✅ `trilhaId`: obrigatório (trilha deve existir)
-- ✅ `dataInscricao`: obrigatória, não pode ser futura
-- ✅ `status`: obrigatório (EM_ANDAMENTO, CONCLUIDA, CANCELADA)
-- ✅ **Regra crítica:** Não permite usuário matriculado 2x na mesma trilha com status EM_ANDAMENTO
-
 ---
 
-### 📝 8. Erro: Matrícula Duplicada
-
-**Request:**
-```http
-POST /api/matriculas HTTP/1.1
-Host: localhost:8080
-Authorization: Bearer SEU_TOKEN_AQUI
-Content-Type: application/json
-
-{
-  "usuarioId": 2,
-  "trilhaId": 5,
-  "dataInscricao": "2025-11-13",
-  "status": "EM_ANDAMENTO"
-}
-```
-
-**Response (409 Conflict):**
-```json
-{
-  "timestamp": "2025-11-13 16:45:30",
-  "status": 409,
-  "error": "Conflict",
-  "message": "Usuário Carlos Mendes já está matriculado na trilha Desenvolvimento Web Full Stack com status EM_ANDAMENTO",
-  "path": "/api/matriculas"
-}
-```
-
----
-
-### 📝 9. Erro: Validação de Campos
+### ⚠️ 5. Erro: Validação de Campos
 
 **Request:**
 ```http
@@ -836,16 +675,46 @@ Content-Type: application/json
 **Response (400 Bad Request):**
 ```json
 {
-  "timestamp": "2025-11-13 17:00:00",
+  "timestamp": "2025-11-13T17:00:00",
   "status": 400,
   "error": "Validation Error",
   "message": "Erro de validação nos campos",
-  "path": "/api/usuarios",
-  "details": [
-    "nome: Nome é obrigatório",
-    "email: Email deve ser válido",
-    "dataCadastro: Data de cadastro não pode ser futura"
-  ]
+  "errors": {
+    "nome": "Nome é obrigatório",
+    "email": "Email deve ser válido",
+    "dataCadastro": "Data de cadastro não pode ser futura"
+  },
+  "path": "/api/usuarios"
+}
+```
+
+---
+
+### ⚠️ 6. Erro: Matrícula Duplicada
+
+**Request:**
+```http
+POST /api/matriculas HTTP/1.1
+Host: localhost:8080
+Authorization: Bearer SEU_TOKEN_AQUI
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "trilhaId": 1,
+  "dataInscricao": "2025-11-13",
+  "status": "EM_ANDAMENTO"
+}
+```
+
+**Response (409 Conflict):**
+```json
+{
+  "timestamp": "2025-11-13T16:45:30",
+  "status": 409,
+  "error": "Conflict",
+  "message": "Usuário Ana Silva já está matriculado na trilha Fundamentos de IA com status EM_ANDAMENTO",
+  "path": "/api/matriculas"
 }
 ```
 
@@ -898,7 +767,7 @@ O projeto utiliza **3 tabelas principais** com relacionamentos:
 ```sql
 -- TABELA USUARIOS
 CREATE TABLE usuarios (
-    id_usuario NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    id_usuario BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     area_atuacao VARCHAR(100),
@@ -908,19 +777,19 @@ CREATE TABLE usuarios (
 
 -- TABELA TRILHAS
 CREATE TABLE trilhas (
-    id_trilha NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    id_trilha BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
-    descricao CLOB,
+    descricao TEXT,
     nivel VARCHAR(50) NOT NULL CHECK (nivel IN ('INICIANTE', 'INTERMEDIARIO', 'AVANCADO')),
-    carga_horaria NUMBER NOT NULL CHECK (carga_horaria > 0),
+    carga_horaria INT NOT NULL CHECK (carga_horaria > 0),
     foco_principal VARCHAR(100)
 );
 
 -- TABELA MATRICULAS
 CREATE TABLE matriculas (
-    id_matricula NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    usuario_id NUMBER NOT NULL,
-    trilha_id NUMBER NOT NULL,
+    id_matricula BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    usuario_id BIGINT NOT NULL,
+    trilha_id BIGINT NOT NULL,
     data_inscricao DATE NOT NULL,
     status VARCHAR(50) NOT NULL CHECK (status IN ('EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA')),
     CONSTRAINT fk_matricula_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
@@ -944,6 +813,38 @@ O banco é **automaticamente populado** com dados de exemplo via Flyway:
 - **5 Usuários** (diferentes áreas e níveis)
 - **10 Trilhas** (IA, Dados, DevOps, Soft Skills, Negócios)
 - **10 Matrículas** (com status variados)
+
+### 🔌 Configuração do Banco H2
+```yaml
+# application.yml
+spring:
+  application:
+    name: global-solution-api
+  
+  datasource:
+    url: jdbc:h2:mem:globalsolutiondb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: gs2
+    password: "2025"
+    driver-class-name: org.h2.Driver
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+```
 
 ---
 
@@ -983,7 +884,7 @@ O banco é **automaticamente populado** com dados de exemplo via Flyway:
 └── ⚠️ exception/ (1 teste)
     └── ✅ ExceptionsTest
 
-📊 TOTAL: 19 classes | 200+ testes unitários
+📊 TOTAL: 19 classes | 100+ testes unitários
 ```
 
 ### 🚀 Executar Testes
@@ -996,6 +897,9 @@ mvn test -Dtest=SuiteDeTestesGeral
 
 # Teste específico
 mvn test -Dtest=UsuarioServiceTest
+
+# Com relatório de cobertura
+mvn clean test jacoco:report
 ```
 
 ---
@@ -1018,12 +922,12 @@ mvn test -Dtest=UsuarioServiceTest
 - 🔐 **Autenticação JWT** para API REST
 - 📚 **Swagger/OpenAPI** com documentação interativa
 - 🧪 **200+ testes** unitários com JUnit 5 + Mockito
-- 🔄 **Multi-profile** (dev com H2 / prod com Oracle)
 - 📬 **Collection Insomnia** pronta para uso
 - 🎯 **Validação de datas** (@PastOrPresent)
 - 🔍 **Queries customizadas** para filtros avançados
-- ⚠️ **ErrorResponse** padronizado com timestamp e detalhes
+- ⚠️ **Respostas padronizadas** de erro com timestamp
 - 📊 **Índices no banco** para otimização de performance
+- 🔄 **Flyway Migrations** para controle de versão do banco
 
 ### 🔥 Diferenciais Técnicos
 
@@ -1036,70 +940,6 @@ mvn test -Dtest=UsuarioServiceTest
 - ✅ **Relacionamentos JPA** bem definidos
 - ✅ **Seeds realistas** com dados do futuro do trabalho
 - ✅ **Documentação** profissional e completa
-
----
-
-## 🔧 Configuração de Ambientes (Profiles)
-
-### 🔵 DEV - Desenvolvimento (H2)
-
-Banco de dados **em memória**, ideal para desenvolvimento e testes.
-
-**Ativar perfil:**
-```yaml
-# application.yml
-spring:
-  profiles:
-    active: dev
-```
-
-**Acesso H2 Console:**
-- **URL:** http://localhost:8080/h2-console
-- **JDBC URL:** `jdbc:h2:mem:globalsolutiondb`
-- **Username:** `gs2`
-- **Password:** `2025`
-
----
-
-### 🟢 PROD - Produção (Oracle)
-
-Banco de dados **Oracle**, para ambiente de produção.
-
-**Ativar perfil:**
-```yaml
-# application.yml
-spring:
-  profiles:
-    active: prod
-```
-
-**Configurar credenciais em `application-prod.yml`:**
-```yaml
-spring:
-  datasource:
-    url: jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl
-    username: SEU_RM
-    password: SUA_SENHA
-```
-
----
-
-## 🔐 Credenciais de Acesso
-
-### 🔑 JWT (API REST)
-
-| Username | Password | Role       |
-|----------|----------|------------|
-| admin    | admin    | ROLE_ADMIN |
-| user     | user     | ROLE_USER  |
-
-### 🗄️ H2 Console (Banco Dev)
-
-| Campo    | Valor                                       |
-|----------|---------------------------------------------|
-| JDBC URL | `jdbc:h2:mem:globalsolutiondb`              |
-| Username | `gs2`                                       |
-| Password | `2025`                                      |
 
 ---
 
@@ -1139,31 +979,50 @@ As trilhas da plataforma cobrem as competências essenciais para 2030+:
 
 ---
 
+## 🔐 Credenciais de Acesso
+
+### 🔑 JWT (API REST)
+
+| Username | Password | Role       |
+|----------|----------|------------|
+| admin    | admin    | ROLE_ADMIN |
+| user     | user     | ROLE_USER  |
+
+### 🗄️ H2 Console (Banco de Dados)
+
+| Campo    | Valor                                                            |
+|----------|------------------------------------------------------------------|
+| JDBC URL | `jdbc:h2:mem:globalsolutiondb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL` |
+| Username | `gs2`                                                            |
+| Password | `2025`                                                           |
+
+---
+
 ## 📦 Dependências Principais
 ```xml
 <!-- Spring Boot -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
-    <version>3.4.10</version>
+    <version>3.3.4</version>
 </dependency>
 
+<!-- Spring Data JPA -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-data-jpa</artifactId>
-    <version>3.4.10</version>
 </dependency>
 
+<!-- Spring Security -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-security</artifactId>
-    <version>3.4.10</version>
 </dependency>
 
+<!-- Thymeleaf -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-thymeleaf</artifactId>
-    <version>3.4.10</version>
 </dependency>
 
 <!-- JWT -->
