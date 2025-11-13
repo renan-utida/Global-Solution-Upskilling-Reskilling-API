@@ -23,5 +23,6 @@ public record UsuarioRequest(
         String nivelCarreira,
 
         @NotNull(message = "Data de cadastro é obrigatória")
+        @PastOrPresent(message = "Data de cadastro não pode ser futura")
         LocalDate dataCadastro
 ) { }

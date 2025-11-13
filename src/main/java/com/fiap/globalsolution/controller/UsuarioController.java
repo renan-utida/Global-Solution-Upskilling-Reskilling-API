@@ -79,18 +79,11 @@ public class UsuarioController {
      */
     @Operation(summary = "Cria um novo usuário", description = "Cadastra um novo usuário na plataforma")
     @PostMapping
-    public ResponseEntity<?> criar(@Valid @RequestBody UsuarioRequest request) {
-        try {
-            UsuarioResponse created = service.create(request);
-            URI location = URI.create("/api/usuarios/" + created.id());
-            return ResponseEntity.created(location).body(created);
-        } catch (DuplicateEntityException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.CONFLICT.value());
-            error.put("error", "Duplicate Entity");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-        }
+    public ResponseEntity<UsuarioResponse> criar(@Valid @RequestBody UsuarioRequest request) {
+        // O @RestControllerAdvice intercepta DuplicateEntityException automaticamente
+        UsuarioResponse created = service.create(request);
+        URI location = URI.create("/api/usuarios/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 
     /**
@@ -98,20 +91,13 @@ public class UsuarioController {
      */
     @Operation(summary = "Atualiza um usuário", description = "Atualiza os dados de um usuário existente")
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(
+    public ResponseEntity<UsuarioResponse> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody UsuarioRequest request) {
-        try {
-            return service.update(id, request)
-                    .map(usuario -> ResponseEntity.ok((Object) usuario))
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (DuplicateEntityException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.CONFLICT.value());
-            error.put("error", "Duplicate Entity");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-        }
+        // O @RestControllerAdvice intercepta DuplicateEntityException automaticamente
+        return service.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
