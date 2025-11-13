@@ -2,23 +2,19 @@ package com.fiap.globalsolution.controller;
 
 import com.fiap.globalsolution.dto.TrilhaRequest;
 import com.fiap.globalsolution.dto.TrilhaResponse;
-import com.fiap.globalsolution.exception.DuplicateEntityException;
 import com.fiap.globalsolution.service.TrilhaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller REST para gerenciamento de Trilhas
- * Endpoints: GET, POST, PUT, DELETE + gerenciamento de competências
+ * Endpoints: GET, POST, PUT, DELETE
  */
 @RestController
 @RequestMapping("/api/trilhas")
@@ -78,42 +74,28 @@ public class TrilhaController {
 
     /**
      * POST /api/trilhas - Cria nova trilha
+     * O GlobalExceptionHandler trata DuplicateEntityException automaticamente
      */
     @Operation(summary = "Cria uma nova trilha", description = "Cadastra uma nova trilha de aprendizagem")
     @PostMapping
-    public ResponseEntity<?> criar(@Valid @RequestBody TrilhaRequest request) {
-        try {
-            TrilhaResponse created = service.create(request);
-            URI location = URI.create("/api/trilhas/" + created.id());
-            return ResponseEntity.created(location).body(created);
-        } catch (DuplicateEntityException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.CONFLICT.value());
-            error.put("error", "Duplicate Entity");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-        }
+    public ResponseEntity<TrilhaResponse> criar(@Valid @RequestBody TrilhaRequest request) {
+        TrilhaResponse created = service.create(request);
+        URI location = URI.create("/api/trilhas/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 
     /**
      * PUT /api/trilhas/{id} - Atualiza trilha existente
+     * O GlobalExceptionHandler trata DuplicateEntityException automaticamente
      */
     @Operation(summary = "Atualiza uma trilha", description = "Atualiza os dados de uma trilha existente")
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(
+    public ResponseEntity<TrilhaResponse> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody TrilhaRequest request) {
-        try {
-            return service.update(id, request)
-                    .map(trilha -> ResponseEntity.ok((Object) trilha))
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (DuplicateEntityException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.CONFLICT.value());
-            error.put("error", "Duplicate Entity");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-        }
+        return service.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**

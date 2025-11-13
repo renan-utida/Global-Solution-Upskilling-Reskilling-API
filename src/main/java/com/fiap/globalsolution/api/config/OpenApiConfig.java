@@ -60,6 +60,14 @@ public class OpenApiConfig {
                                 4. Cole o token no campo "Value"
                                 5. Clique em "Authorize"
                                 
+                                ## 🔗 Links Úteis
+                              
+                                - **Interface Web:** [http://localhost:8080/web/usuarios](http://localhost:8080/web/usuarios)
+                                - **H2 Database Console:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+                                  - JDBC URL: `jdbc:h2:mem:globalsolutiondb`
+                                  - Username: `gs2`
+                                  - Password: `2025`
+                                
                                 ## 🛠️ Tecnologias
                                 
                                 - Java 17

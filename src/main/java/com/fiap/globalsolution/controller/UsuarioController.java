@@ -2,19 +2,15 @@ package com.fiap.globalsolution.controller;
 
 import com.fiap.globalsolution.dto.UsuarioRequest;
 import com.fiap.globalsolution.dto.UsuarioResponse;
-import com.fiap.globalsolution.exception.DuplicateEntityException;
 import com.fiap.globalsolution.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller REST para gerenciamento de Usuarios
@@ -76,42 +72,28 @@ public class UsuarioController {
 
     /**
      * POST /api/usuarios - Cria novo usuário
+     * O GlobalExceptionHandler trata DuplicateEntityException automaticamente
      */
     @Operation(summary = "Cria um novo usuário", description = "Cadastra um novo usuário na plataforma")
     @PostMapping
-    public ResponseEntity<?> criar(@Valid @RequestBody UsuarioRequest request) {
-        try {
-            UsuarioResponse created = service.create(request);
-            URI location = URI.create("/api/usuarios/" + created.id());
-            return ResponseEntity.created(location).body(created);
-        } catch (DuplicateEntityException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.CONFLICT.value());
-            error.put("error", "Duplicate Entity");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-        }
+    public ResponseEntity<UsuarioResponse> criar(@Valid @RequestBody UsuarioRequest request) {
+        UsuarioResponse created = service.create(request);
+        URI location = URI.create("/api/usuarios/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 
     /**
      * PUT /api/usuarios/{id} - Atualiza usuário existente
+     * O GlobalExceptionHandler trata DuplicateEntityException automaticamente
      */
     @Operation(summary = "Atualiza um usuário", description = "Atualiza os dados de um usuário existente")
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(
+    public ResponseEntity<UsuarioResponse> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody UsuarioRequest request) {
-        try {
-            return service.update(id, request)
-                    .map(usuario -> ResponseEntity.ok((Object) usuario))
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (DuplicateEntityException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.CONFLICT.value());
-            error.put("error", "Duplicate Entity");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-        }
+        return service.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**

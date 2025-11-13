@@ -2,21 +2,15 @@ package com.fiap.globalsolution.controller;
 
 import com.fiap.globalsolution.dto.MatriculaRequest;
 import com.fiap.globalsolution.dto.MatriculaResponse;
-import com.fiap.globalsolution.exception.DuplicateEntityException;
-import com.fiap.globalsolution.exception.TrilhaNaoEncontradaException;
-import com.fiap.globalsolution.exception.UsuarioNaoEncontradoException;
 import com.fiap.globalsolution.service.MatriculaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller REST para gerenciamento de Matriculas
@@ -56,42 +50,28 @@ public class MatriculaController {
 
     /**
      * GET /api/matriculas/usuario/{usuarioId} - Busca matrículas de um usuário
+     * O GlobalExceptionHandler trata UsuarioNaoEncontradoException automaticamente
      */
     @Operation(summary = "Busca matrículas de um usuário", description = "Retorna todas as matrículas de um usuário específico")
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<?> buscarPorUsuario(@PathVariable Long usuarioId) {
-        try {
-            List<MatriculaResponse> matriculas = service.findByUsuarioId(usuarioId);
-            return matriculas.isEmpty()
-                    ? ResponseEntity.noContent().build()
-                    : ResponseEntity.ok(matriculas);
-        } catch (UsuarioNaoEncontradoException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.NOT_FOUND.value());
-            error.put("error", "Not Found");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
+    public ResponseEntity<List<MatriculaResponse>> buscarPorUsuario(@PathVariable Long usuarioId) {
+        List<MatriculaResponse> matriculas = service.findByUsuarioId(usuarioId);
+        return matriculas.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(matriculas);
     }
 
     /**
      * GET /api/matriculas/trilha/{trilhaId} - Busca matrículas de uma trilha
+     * O GlobalExceptionHandler trata TrilhaNaoEncontradaException automaticamente
      */
     @Operation(summary = "Busca matrículas de uma trilha", description = "Retorna todas as matrículas de uma trilha específica")
     @GetMapping("/trilha/{trilhaId}")
-    public ResponseEntity<?> buscarPorTrilha(@PathVariable Long trilhaId) {
-        try {
-            List<MatriculaResponse> matriculas = service.findByTrilhaId(trilhaId);
-            return matriculas.isEmpty()
-                    ? ResponseEntity.noContent().build()
-                    : ResponseEntity.ok(matriculas);
-        } catch (TrilhaNaoEncontradaException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.NOT_FOUND.value());
-            error.put("error", "Not Found");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
+    public ResponseEntity<List<MatriculaResponse>> buscarPorTrilha(@PathVariable Long trilhaId) {
+        List<MatriculaResponse> matriculas = service.findByTrilhaId(trilhaId);
+        return matriculas.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(matriculas);
     }
 
     /**
@@ -108,54 +88,34 @@ public class MatriculaController {
 
     /**
      * POST /api/matriculas - Cria nova matrícula
+     * O GlobalExceptionHandler trata todas as exceções automaticamente:
+     * - UsuarioNaoEncontradoException
+     * - TrilhaNaoEncontradaException
+     * - DuplicateEntityException
      */
     @Operation(summary = "Cria uma nova matrícula", description = "Cadastra uma nova matrícula de usuário em trilha")
     @PostMapping
-    public ResponseEntity<?> criar(@Valid @RequestBody MatriculaRequest request) {
-        try {
-            MatriculaResponse created = service.create(request);
-            URI location = URI.create("/api/matriculas/" + created.id());
-            return ResponseEntity.created(location).body(created);
-        } catch (UsuarioNaoEncontradoException | TrilhaNaoEncontradaException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.NOT_FOUND.value());
-            error.put("error", "Not Found");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        } catch (DuplicateEntityException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.CONFLICT.value());
-            error.put("error", "Duplicate Entity");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-        }
+    public ResponseEntity<MatriculaResponse> criar(@Valid @RequestBody MatriculaRequest request) {
+        MatriculaResponse created = service.create(request);
+        URI location = URI.create("/api/matriculas/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 
     /**
      * PUT /api/matriculas/{id} - Atualiza matrícula existente
+     * O GlobalExceptionHandler trata todas as exceções automaticamente:
+     * - UsuarioNaoEncontradoException
+     * - TrilhaNaoEncontradaException
+     * - DuplicateEntityException
      */
     @Operation(summary = "Atualiza uma matrícula", description = "Atualiza os dados de uma matrícula existente")
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(
+    public ResponseEntity<MatriculaResponse> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody MatriculaRequest request) {
-        try {
-            return service.update(id, request)
-                    .map(matricula -> ResponseEntity.ok((Object) matricula))
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (UsuarioNaoEncontradoException | TrilhaNaoEncontradaException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.NOT_FOUND.value());
-            error.put("error", "Not Found");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        } catch (DuplicateEntityException e) {
-            Map<String, Object> error = new LinkedHashMap<>();
-            error.put("status", HttpStatus.CONFLICT.value());
-            error.put("error", "Duplicate Entity");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-        }
+        return service.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
